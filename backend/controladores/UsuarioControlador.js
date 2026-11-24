@@ -89,6 +89,7 @@ class UsuarioControlador {
         try {
             const modeloUsuario = new Usuario();
             const usuarios = await modeloUsuario.obtenerTodos();
+            usuarios.forEach(u => delete u.password);
             res.json(usuarios);
         } catch (error) {
             console.error('Error al obtener usuarios:', error);
@@ -116,28 +117,6 @@ class UsuarioControlador {
         } catch (error) {
             console.error('Error al obtener perfil:', error);
             res.status(500).json({ mensaje: 'Error al obtener perfil' });
-        }
-    }
-
-    // Metodo para buscar usuarios
-    async buscar(req, res) {
-        try {
-            const { texto } = req.query;
-            if (!texto) {
-                return res.status(400).json({ mensaje: 'Debe proporcionar un texto de busqueda' });
-            }
-            
-            const modeloUsuario = new Usuario();
-            const usuarios = await modeloUsuario.buscarPorTexto(texto);
-            
-            if (usuarios.length === 0) {
-                return res.status(404).json({ mensaje: 'Usuario no encontrado' });
-            }
-            
-            res.json(usuarios);
-        } catch (error) {
-            console.error('Error al buscar usuarios:', error);
-            res.status(500).json({ mensaje: 'Error al buscar usuarios' });
         }
     }
 
@@ -308,6 +287,20 @@ class UsuarioControlador {
             if (!usuarioActual) {
                 return res.status(404).json({ mensaje: 'Usuario no encontrado' });
             }
+
+            // Solo puede cambiarla: el propio usuario con sesion, un admin,
+            // o el flujo de primer ingreso (debe_cambiar_password activo)
+            const idSesion = req.headers['x-id-usuario'];
+            let autorizado = false;
+            if (idSesion) {
+                const solicitante = await modeloUsuario.obtenerPorId(idSesion);
+                autorizado = !!solicitante && (String(solicitante.id_usuario) === String(id_usuario) || solicitante.id_rol_FK === 1);
+            }
+            const esPrimerIngreso = usuarioActual.debe_cambiar_password === 1 || usuarioActual.debe_cambiar_password === true;
+            if (!autorizado && !esPrimerIngreso) {
+                return res.status(403).json({ mensaje: 'No tiene permisos para cambiar esta contraseña' });
+            }
+
             const esLaMisma = await bcrypt.compare(nuevaPassword, usuarioActual.password);
             if (esLaMisma) {
                 return res.status(400).json({ mensaje: 'La nueva contraseña no puede ser igual a la contraseña actual.' });

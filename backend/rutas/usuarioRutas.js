@@ -14,9 +14,6 @@ router.post('/registrar', verificarAdmin, usuarioControlador.registrar);
 // Obtener todos los usuarios
 router.get('/obtener', verificarAdmin, usuarioControlador.obtenerTodos);
 
-// Buscar usuarios
-router.get('/buscar', verificarAdmin, usuarioControlador.buscar);
-
 // Actualizar usuario (admin o el propio usuario)
 router.put('/actualizar/:id', verificarAdminOSelf, usuarioControlador.actualizar);
 

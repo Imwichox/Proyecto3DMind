@@ -104,21 +104,6 @@ class Usuario {
         }
     }
 
-    // Metodo para buscar usuarios por texto
-    async buscarPorTexto(texto) {
-        try {
-            const conexion = await bd.obtenerConexion();
-            const [filas] = await conexion.query(
-                'SELECT u.*, r.nombre_rol, t.nom_tipo_doc FROM usuario u LEFT JOIN rol r ON u.id_rol_FK = r.id_rol LEFT JOIN tipo_documento t ON u.id_tipo_doc_FK = t.id_tipo_doc WHERE u.estado != "Eliminado" AND (u.nombre LIKE ? OR u.cedula LIKE ? OR u.username LIKE ?) ORDER BY u.id_usuario',
-                [`%${texto}%`, `%${texto}%`, `%${texto}%`]
-            );
-            conexion.release();
-            return filas;
-        } catch (error) {
-            throw error;
-        }
-    }
-
     // Metodo para obtener un usuario por ID
     async obtenerPorId(id) {
         try {

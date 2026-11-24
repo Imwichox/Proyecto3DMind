@@ -9,7 +9,7 @@ const TipoDocumento = require('./modelos/TipoDocumento');
 class Servidor {
     constructor() {
         this.app = express();
-        this.puerto = 3000;
+        this.puerto = process.env.PORT || 3000;
         this.configurarMiddleware();
         this.configurarRutas();
     }

@@ -338,12 +338,6 @@ body.menu-colapsado .logo-container {
     height: 20px;
 }
 
-.menu-lateral .usuario-info {
-    margin-top: auto;
-    padding-top: 20px;
-    border-top: 1px solid #333333;
-}
-
 /* Menu desplegable de usuario en la barra superior */
 .usuario-menu {
     position: relative;

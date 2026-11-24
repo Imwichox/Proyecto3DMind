@@ -4,11 +4,11 @@ const mysql = require('mysql2/promise');
 class BaseDatos {
     constructor() {
         this.config = {
-            host: '127.0.0.1',
-            port: 3306,
-            user: 'root',
-            password: '',
-            database: 'proyecto_3d_mind'
+            host: process.env.DB_HOST || '127.0.0.1',
+            port: parseInt(process.env.DB_PORT) || 3306,
+            user: process.env.DB_USER || 'root',
+            password: process.env.DB_PASSWORD || '',
+            database: process.env.DB_NAME || 'proyecto_3d_mind'
         };
         this.pool = mysql.createPool(this.config);
     }
