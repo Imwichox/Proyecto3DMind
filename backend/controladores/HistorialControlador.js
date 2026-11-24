@@ -2,19 +2,6 @@
 const HistorialAcceso = require('../modelos/HistorialAcceso');
 
 class HistorialControlador {
-    // Metodo para registrar un acceso
-    async registrar(req, res) {
-        try {
-            const { id_usuario, ip } = req.body;
-            const modeloHistorial = new HistorialAcceso();
-            const idSesion = await modeloHistorial.crear(id_usuario, ip);
-            res.json({ mensaje: 'Acceso registrado', id_sesion: idSesion });
-        } catch (error) {
-            console.error('Error al registrar acceso:', error);
-            res.status(500).json({ mensaje: 'Error al registrar acceso' });
-        }
-    }
-
     // Metodo para registrar cierre de sesion
     async registrarSalida(req, res) {
         try {

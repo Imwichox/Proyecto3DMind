@@ -42,21 +42,6 @@ class HistorialAcceso {
         }
     }
 
-    // Metodo para obtener el historial de un usuario
-    async obtenerPorUsuario(idUsuario) {
-        try {
-            const conexion = await bd.obtenerConexion();
-            const [filas] = await conexion.query(
-                'SELECT * FROM historial_acceso WHERE id_usuario_FK = ? ORDER BY fecha_ingreso DESC',
-                [idUsuario]
-            );
-            conexion.release();
-            return filas;
-        } catch (error) {
-            throw error;
-        }
-    }
-
     // Metodo para obtener todo el historial
     async obtenerTodos() {
         try {

@@ -1,10 +1,10 @@
 // Servidor principal - Clase para iniciar el servidor Express
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const Usuario = require('./modelos/Usuario');
 const Rol = require('./modelos/Rol');
-const bcrypt = require('bcryptjs');
+const TipoDocumento = require('./modelos/TipoDocumento');
 
 class Servidor {
     constructor() {
@@ -18,6 +18,15 @@ class Servidor {
     configurarMiddleware() {
         this.app.use(cors());
         this.app.use(express.json());
+
+        // Anti-cache: evitar que el navegador guarde paginas o respuestas de API en BFCache/cache
+        this.app.use((req, res, next) => {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+            next();
+        });
+
         this.app.use(express.static(path.join(__dirname, '../frontend')));
     }
 
@@ -28,6 +37,7 @@ class Servidor {
         this.app.use('/api/historial', require('./rutas/historialRutas'));
         this.app.use('/api/roles', require('./rutas/rolRutas'));
         this.app.use('/api/tipos-documento', require('./rutas/tipoDocumentoRutas'));
+        this.app.use('/api/auth', require('./rutas/authRutas'));
 
         // Ruta principal - sirve index.html
         this.app.get('/', (req, res) => {
@@ -44,11 +54,11 @@ class Servidor {
         });
     }
 
-    // Metodo para inicializar datos del sistema
+    // Metodo para inicializar datos del sistema (solo catalogos base, nunca usuarios)
     async inicializarDatos() {
         try {
             const modeloRol = new Rol();
-            const modeloUsuario = new Usuario();
+            const modeloTipoDoc = new TipoDocumento();
             const bd = require('./configuracion/basedatos');
 
             // Verificar si hay roles, si no, insertar los basicos
@@ -58,29 +68,21 @@ class Servidor {
                 await modeloRol.insertarBasicos();
             }
 
-            // Verificar si hay usuarios con consulta simple
-            const conexion = await bd.obtenerConexion();
-            const [usuarios] = await conexion.query('SELECT COUNT(*) as total FROM usuario');
-            conexion.release();
-
-            if (usuarios[0].total === 0) {
-                console.log('Creando usuario administrador inicial...');
-                const passwordEncriptada = await bcrypt.hash('admin123', 10);
-                
-                // Obtener el rol de Administrador (id_rol = 1)
-                const passwordAdmin = new Usuario({
-                    nombre: 'Administrador Principal',
-                    cedula: '123456789',
-                    email: 'admin@3dmind.com',
-                    username: 'admin',
-                    password: passwordEncriptada,
-                    id_rol_FK: 1,
-                    id_tipo_doc_FK: 1 // CC
-                });
-                
-                await passwordAdmin.crear();
-                console.log('Usuario admin creado: usuario=admin, contraseña=admin123');
+            // Verificar si hay tipos de documento, si no, insertar los basicos
+            const hayTipos = await modeloTipoDoc.hayTipos();
+            if (!hayTipos) {
+                console.log('Insertando tipos de documento basicos...');
+                await modeloTipoDoc.insertarBasicos();
             }
+
+            // Asegurar la columna de primer ingreso en la tabla usuario
+            const conexion = await bd.obtenerConexion();
+            const [columna] = await conexion.query("SHOW COLUMNS FROM usuario LIKE 'debe_cambiar_password'");
+            if (columna.length === 0) {
+                await conexion.query('ALTER TABLE usuario ADD COLUMN debe_cambiar_password TINYINT(1) NOT NULL DEFAULT 0 AFTER int_fallidos');
+                console.log('Columna debe_cambiar_password agregada a usuario');
+            }
+            conexion.release();
         } catch (error) {
             console.error('Error al inicializar datos:', error);
         }

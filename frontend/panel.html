@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D MIND - Panel de Control</title>
+    <link rel="icon" type="image/png" href="img/icon-192.png">
+    <link rel="shortcut icon" href="img/icon-192.png">
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="fade-in">
+    <!-- Menu lateral -->
+    <nav class="menu-lateral">
+        <div class="logo-container">
+            <img src="img/logo.png" alt="3D MIND Logo" class="logo-pequeno">
+            <button class="btn-menu" id="btnToggleMenu" title="Ocultar menú">
+                <i data-lucide="menu" style="width: 22px; height: 22px;"></i>
+            </button>
+        </div>
+        
+        <div class="menu-item active" data-vista="bienvenida" title="Inicio">
+            <i data-lucide="home"></i>
+            <span>Inicio</span>
+        </div>
+        
+        <div class="menu-item" data-vista="usuarios" title="Gestión de Usuarios">
+            <i data-lucide="users"></i>
+            <span>Usuarios</span>
+        </div>
+        
+        <div class="menu-item" data-vista="historial" title="Historial de Accesos">
+            <i data-lucide="history"></i>
+            <span>Historial</span>
+        </div>
+        
+        <div class="menu-item" data-modulo="clientes" title="Clientes">
+            <i data-lucide="user-circle"></i>
+            <span>Clientes</span>
+        </div>
+        
+        <div class="menu-item" data-modulo="pedidos" title="Pedidos">
+            <i data-lucide="shopping-cart"></i>
+            <span>Pedidos</span>
+        </div>
+        
+        <div class="menu-item" data-modulo="ventas" title="Ventas">
+            <i data-lucide="dollar-sign"></i>
+            <span>Ventas</span>
+        </div>
+        
+        <div class="menu-item" data-modulo="insumos" title="Insumos">
+            <i data-lucide="box"></i>
+            <span>Insumos</span>
+        </div>
+        
+        <div class="menu-item" data-modulo="reportes" title="Reportes">
+            <i data-lucide="bar-chart"></i>
+            <span>Reportes</span>
+        </div>
+        
+    </nav>
+
+    <!-- Barra superior: menu colapsable + informacion de sesion -->
+    <header class="barra-superior">
+        <div class="sesion-info">
+            <span class="sesion-dato">IP: <span id="sesionIp">-</span></span>
+            <span class="sesion-dato">Ingreso: <span id="sesionHora">-</span></span>
+            <div class="usuario-menu" id="usuarioMenu">
+                <button type="button" class="btn-usuario" id="btnUsuarioMenu" aria-haspopup="true" aria-expanded="false">
+                    <span class="badge-rol" id="sesionRol"></span>
+                    <i data-lucide="chevron-down" class="flecha-usuario"></i>
+                </button>
+                <div class="usuario-dropdown" id="usuarioDropdown">
+                    <div class="usuario-perfil">
+                        <div class="avatar-usuario"><i data-lucide="user"></i></div>
+                        <span class="usuario-perfil-nombre" id="btnUsuarioNombre"></span>
+                    </div>
+                    <div class="dropdown-separador"></div>
+                    <button type="button" class="dropdown-item" id="btnConfiguracion">
+                        <i data-lucide="settings"></i>
+                        <span>Configuración</span>
+                    </button>
+                    <div class="dropdown-separador"></div>
+                    <button type="button" class="dropdown-item dropdown-cerrar" id="btnCerrarSesion">
+                        <i data-lucide="log-out"></i>
+                        <span>Cerrar sesión</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="contenido-principal">
+        <!-- Vista Bienvenida -->
+        <div id="vista-bienvenida" class="vista">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Bienvenido al Sistema 3D MIND</h2>
+                </div>
+                <p class="texto-bienvenida">Seleccione una opción del menú lateral o use los accesos rápidos.</p>
+
+                <div class="grid-tarjetas">
+                    <div class="card-mini card-usuarios" id="cardModuloUsuarios" onclick="document.querySelector('[data-vista=usuarios]').click()">
+                        <i data-lucide="users" class="icono-modulo"></i>
+                        <h3>Usuarios</h3>
+                        <p class="estado-modulo">Disponible</p>
+                    </div>
+
+                    <div class="card-mini card-usuarios" onclick="document.querySelector('[data-vista=historial]').click()">
+                        <i data-lucide="history" class="icono-modulo"></i>
+                        <h3>Historial</h3>
+                        <p class="estado-modulo">Disponible</p>
+                    </div>
+
+                    <div class="card-mini card-proximamente" title="Disponible próximamente">
+                        <i data-lucide="user-circle" class="icono-modulo"></i>
+                        <h3>Clientes</h3>
+                    </div>
+
+                    <div class="card-mini card-proximamente" title="Disponible próximamente">
+                        <i data-lucide="shopping-cart" class="icono-modulo"></i>
+                        <h3>Pedidos</h3>
+                    </div>
+
+                    <div class="card-mini card-proximamente" title="Disponible próximamente">
+                        <i data-lucide="dollar-sign" class="icono-modulo"></i>
+                        <h3>Ventas</h3>
+                    </div>
+
+                    <div class="card-mini card-proximamente" title="Disponible próximamente">
+                        <i data-lucide="box" class="icono-modulo"></i>
+                        <h3>Insumos</h3>
+                    </div>
+
+                    <div class="card-mini card-proximamente" title="Disponible próximamente">
+                        <i data-lucide="bar-chart" class="icono-modulo"></i>
+                        <h3>Reportes</h3>
+                    </div>
+                </div>
+
+                <div class="guia-rapida">
+                    <h3>Guía rápida</h3>
+                    <div class="guia-items">
+                        <details class="nota-rapida" id="guiaBusqueda">
+                            <summary>¿Cómo busco un usuario?</summary>
+                            <p>Escribe en la barra de búsqueda por nombre, cédula, correo o usuario.</p>
+                        </details>
+                        <details class="nota-rapida">
+                            <summary>¿Por qué un módulo no abre?</summary>
+                            <p>Los módulos se habilitan por fases; por ahora se muestra un aviso de próximamente.</p>
+                        </details>
+                        <details class="nota-rapida">
+                            <summary>¿Cómo cierro mi sesión?</summary>
+                            <p>Usa la opción "Cerrar sesión" del menú de usuario en la barra superior derecha.</p>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista Usuarios -->
+        <div id="vista-usuarios" class="vista" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Gestión de Usuarios</h2>
+                </div>
+                
+                <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="btn btn-outline" id="btnConsultarDirectorio" style="white-space: nowrap;">
+                        <i data-lucide="book-open" style="width: 16px; height: 16px; margin-right: 5px;"></i>
+                        Consultar directorio
+                    </button>
+                    <button class="btn btn-primary" id="btnNuevoUsuario" style="white-space: nowrap;">
+                        <i data-lucide="plus" style="width: 16px; height: 16px; margin-right: 5px;"></i>
+                        Nuevo Usuario
+                    </button>
+                    <input type="text" class="buscador" id="buscadorUsuarios" placeholder="Buscar usuario por nombre, cédula, correo o username..." style="margin-bottom: 0; flex: 1; min-width: 220px;">
+                </div>
+
+                <div class="tabla-container" id="contenedorResultados" style="display: none;">
+                    <table id="tablaUsuarios">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Cédula</th>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista Historial -->
+        <div id="vista-historial" class="vista" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Historial de Accesos</h2>
+                </div>
+                
+                <div class="tabla-container">
+                    <table id="tablaHistorial">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Fecha Ingreso</th>
+                                <th>Fecha Salida</th>
+                                <th>IP Acceso</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para crear/editar usuario -->
+    <div id="modalUsuario" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+        <div class="card" style="max-width: 500px; margin: 50px auto; max-height: 90vh; overflow-y: auto;">
+            <div class="card-header">
+                <h2 id="tituloModalUsuario">Nuevo Usuario</h2>
+            </div>
+            
+            <form id="formUsuario" autocomplete="off">
+                <input type="hidden" id="usuarioId">
+                
+                <div class="form-group">
+                    <label for="usuarioNombre">Nombre</label>
+                    <input type="text" id="usuarioNombre" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="usuarioTipoDoc">Tipo de Documento</label>
+                    <select id="usuarioTipoDoc" required></select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="usuarioCedula">Cédula</label>
+                    <div class="input-con-icono">
+                        <input type="text" id="usuarioCedula" required>
+                        <span class="icono-check" id="checkCedula">&#10003;</span>
+                    </div>
+                    <div class="mensaje-campo" id="msgCedula"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="usuarioEmail">Email</label>
+                    <div class="input-con-icono">
+                        <input type="email" id="usuarioEmail" required>
+                        <span class="icono-check" id="checkEmail">&#10003;</span>
+                    </div>
+                    <div class="mensaje-campo" id="msgEmail"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="usuarioUsername">Usuario</label>
+                    <div class="input-con-icono">
+                        <input type="text" id="usuarioUsername" required>
+                        <span class="icono-check" id="checkUsername">&#10003;</span>
+                    </div>
+                    <div class="mensaje-campo" id="msgUsername"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="usuarioRol">Rol</label>
+                    <select id="usuarioRol" required></select>
+                </div>
+                
+                <!-- Operario: contrasena enmascarada hasta verificar su identidad -->
+                <div class="form-group" id="grupoPasswordSoloLectura" style="display: none;">
+                    <label>Contraseña</label>
+                    <div class="password-bloqueada">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</div>
+                    <button type="button" class="btn btn-modificar-password" id="btnModificarPassword">
+                        Modificar contraseña
+                    </button>
+                </div>
+
+                <div id="grupoEdicionPassword">
+                <div class="form-group">
+                    <label for="usuarioPassword">Contraseña</label>
+                    <div class="input-con-icono">
+                        <button type="button" class="icono-ojo" id="ojoPassword" title="Mostrar contraseña">&#128065;</button>
+                        <input type="password" id="usuarioPassword" autocomplete="new-password" placeholder="Ingresa la contraseña" class="input-password">
+                        <span class="icono-check" id="checkPassword">&#10003;</span>
+                    </div>
+                    <div class="mensaje-campo" id="msgPassword"></div>
+                </div>
+
+                <div class="form-group" id="grupoConfirmarPassword" style="display: none;">
+                    <label for="usuarioPasswordConfirm">Confirmar contraseña</label>
+                    <div class="input-con-icono">
+                        <button type="button" class="icono-ojo" id="ojoPasswordConfirm" title="Mostrar contraseña">&#128065;</button>
+                        <input type="password" id="usuarioPasswordConfirm" autocomplete="new-password" placeholder="Repite la contraseña" class="input-password">
+                        <span class="icono-check" id="checkPasswordConfirm">&#10003;</span>
+                    </div>
+                    <div class="mensaje-campo" id="msgPasswordConfirm"></div>
+                </div>
+                </div>
+
+                <div id="grupoAccionesForm" style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar</button>
+                    <button type="button" class="btn" id="btnCancelarUsuario" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de verificación de seguridad (doble verificación de administrador) -->
+    <div id="modalVerificacion" class="modal-verificacion" style="display: none;">
+        <div class="card verif-card">
+            <button type="button" class="verif-cerrar" id="btnCerrarVerificacion" title="Cerrar">&times;</button>
+            <div class="verif-header">
+                <div class="verif-icono"><i data-lucide="shield-check"></i></div>
+                <h2 class="verif-titulo">Verificación de seguridad</h2>
+            </div>
+            <p id="textoVerificacion" class="verif-texto">
+                Ingresa tu contraseña de administrador para continuar
+            </p>
+            <div class="input-con-icono verif-campo">
+                <input type="password" id="passwordVerificacion" autocomplete="new-password" placeholder="Contraseña">
+                <span class="icono-check" id="checkVerificacion">&#10003;</span>
+                <button type="button" class="icono-ojo verif-ojo" id="ojoVerificacion" title="Mostrar contraseña">
+                    <svg class="ojo-ocultar" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                    <svg class="ojo-ver" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+            <div class="mensaje-campo" id="msgVerificacion"></div>
+        </div>
+    </div>
+
+    <!-- Aviso discreto de cierre por inactividad -->
+    <div id="avisoInactividad" style="display: none;">
+        Tu sesión pedirá confirmación de contraseña por inactividad en 30 segundos.
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Notificaciones automaticas: se cierran solas a los 4 segundos sin boton;
+        // los dialogos de confirmacion (showCancelButton) conservan sus botones
+        (function() {
+            const swalOriginal = Swal.fire.bind(Swal);
+            Swal.fire = function(opciones) {
+                if (opciones && opciones.showCancelButton) {
+                    return swalOriginal(opciones);
+                }
+                return swalOriginal(Object.assign({ timer: 3000, timerProgressBar: true, showConfirmButton: false, position: 'top-end', customClass: { popup: 'swal-mini' } }, opciones));
+            };
+        })();
+
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        // Verificar sesion: sin sesion activa se vuelve al login reemplazando la entrada del historial
+        if (!sesion.estaActiva()) {
+            sessionStorage.setItem('aviso_sesion', 'La sesión se ha cerrado, por favor, vuelva a iniciar sesión');
+            window.location.replace('login.html');
+        }
+
+        // Obtener datos de sesion
+        const usuarioSesion = sesion.obtener() || {};
+        const esAdmin = usuarioSesion.id_rol === 1;
+
+        // Ocultar gestion de usuarios a roles que no sean Administrador
+        if (!esAdmin) {
+            const itemUsuarios = document.querySelector('[data-vista="usuarios"]');
+            if (itemUsuarios) {
+                itemUsuarios.style.display = 'none';
+            }
+            const cardUsuarios = document.getElementById('cardModuloUsuarios');
+            if (cardUsuarios) {
+                cardUsuarios.style.display = 'none';
+            }
+            // Guia rapida para Operario: como modificar su contrasena
+            const guia = document.getElementById('guiaBusqueda');
+            if (guia) {
+                guia.querySelector('summary').textContent = '¿Cómo modifico mi contraseña?';
+                guia.querySelector('p').textContent = 'Abre el menú de usuario (la flecha junto a tu rol) → Configuración → Modificar contraseña.';
+            }
+        }
+
+        // Mostrar informacion de sesion en la barra superior
+        // Etiqueta corta del rol: "Operario de tienda" se muestra como "Operario"
+        const nombreRol = usuarioSesion.nombre_rol || 'Usuario';
+        document.getElementById('sesionRol').textContent = nombreRol === 'Operario de tienda' ? 'Operario' : nombreRol;
+        document.getElementById('sesionIp').textContent = usuarioSesion.ip || '-';
+        document.getElementById('sesionHora').textContent = usuarioSesion.fecha_ingreso
+            ? new Date(usuarioSesion.fecha_ingreso).toLocaleString()
+            : '-';
+
+        // Menu desplegable de usuario
+        const usuarioMenu = document.getElementById('usuarioMenu');
+        const btnUsuarioMenu = document.getElementById('btnUsuarioMenu');
+        document.getElementById('btnUsuarioNombre').textContent = usuarioSesion.username || usuarioSesion.nombre || 'Usuario';
+
+        function cerrarMenuUsuario() {
+            usuarioMenu.classList.remove('abierto');
+            btnUsuarioMenu.setAttribute('aria-expanded', 'false');
+        }
+
+        btnUsuarioMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const abierto = usuarioMenu.classList.toggle('abierto');
+            btnUsuarioMenu.setAttribute('aria-expanded', abierto);
+        });
+        document.addEventListener('click', function(e) {
+            if (!usuarioMenu.contains(e.target)) cerrarMenuUsuario();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') cerrarMenuUsuario();
+        });
+
+        // Configuracion: editar los datos del usuario con la sesion iniciada
+        document.getElementById('btnConfiguracion').addEventListener('click', function() {
+            cerrarMenuUsuario();
+            editarUsuario(usuarioSesion.id_usuario);
+        });
+
+        // Colapsar/desplegar menu lateral
+        const btnToggleMenu = document.getElementById('btnToggleMenu');
+        btnToggleMenu.addEventListener('click', function() {
+            const oculto = document.body.classList.toggle('menu-colapsado');
+            btnToggleMenu.title = oculto ? 'Mostrar menú' : 'Ocultar menú';
+        });
+
+        // Anti-BFCache: si la pagina se restaura desde cache del navegador o la sesion ya no existe,
+        // ocultar el contenido protegido y volver al login sin dejar rastro en el historial
+        window.addEventListener('pageshow', function(e) {
+            if (e.persisted || !sesion.estaActiva()) {
+                sessionStorage.setItem('aviso_sesion', 'La sesión se ha cerrado, por favor, vuelva a iniciar sesión');
+                window.location.replace('login.html');
+            }
+        });
+
+        // Sincronizar pestanas: si otra pestana cerro la sesion, volver al login
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'sesion_logout') {
+                sesion.cerrar();
+                sessionStorage.removeItem('id_sesion');
+                sessionStorage.setItem('aviso_sesion', 'La sesión se ha cerrado, por favor, vuelva a iniciar sesión');
+                window.location.replace('login.html');
+            }
+        });
+
+        // Logica de navegacion del menu (se ejecuta tras la verificacion cuando aplica)
+        function manejarClicMenu(item) {
+            const vista = item.getAttribute('data-vista');
+            const modulo = item.getAttribute('data-modulo');
+
+            // Actualizar clase activa
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+
+            // Ocultar todas las vistas
+            document.querySelectorAll('.vista').forEach(v => v.style.display = 'none');
+
+            if (vista) {
+                // Mostrar vista correspondiente
+                document.getElementById('vista-' + vista).style.display = 'block';
+
+                // Verificar permisos para vistas restringidas
+                if ((vista === 'usuarios' || vista === 'historial') && !esAdmin) {
+                    Swal.fire({
+                        title: 'Acceso restringido',
+                        text: 'Solo el Administrador puede gestionar usuarios',
+                        icon: 'warning',
+                        confirmButtonText: 'Entendido'
+                    });
+                    document.getElementById('vista-bienvenida').style.display = 'block';
+                    document.getElementById('vista-' + vista).style.display = 'none';
+                    document.querySelector('[data-vista="bienvenida"]').classList.add('active');
+                    item.classList.remove('active');
+                }
+
+                // Cargar datos si es necesario
+                if (vista === 'usuarios') {
+                    cargarUsuarios();
+                }
+                if (vista === 'historial') {
+                    cargarHistorial();
+                }
+            } else if (modulo) {
+                // Modulo en actualizacion
+                Swal.fire({
+                    title: 'Módulo en actualización',
+                    icon: 'info',
+                    confirmButtonText: 'Entendido'
+                });
+                document.getElementById('vista-bienvenida').style.display = 'block';
+                document.querySelector('[data-vista="bienvenida"]').classList.add('active');
+                item.classList.remove('active');
+            }
+        }
+
+        // Navegacion del menu: entrar a Usuarios exige doble verificacion de administrador
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const vista = this.getAttribute('data-vista');
+                if (vista === 'usuarios' && !this.classList.contains('active')) {
+                    solicitarVerificacionAdmin(
+                        'Vas a acceder al módulo de Gestión de Usuarios. Ingresa tu contraseña de administrador para continuar',
+                        () => manejarClicMenu(this)
+                    );
+                    return;
+                }
+                manejarClicMenu(this);
+            });
+        });
+
+        // Cerrar sesion (manual o automatica)
+        async function cerrarSesion(mensajePostCierre) {
+            const idSesion = sessionStorage.getItem('id_sesion');
+
+            // Notificar al backend para limpiar el token de sesion
+            try {
+                if (usuarioSesion.sessionToken) {
+                    await usuarioFrontend.logout(usuarioSesion.sessionToken);
+                }
+            } catch (e) { /* el cierre local continua aunque falle la peticion */ }
+
+            if (idSesion) {
+                try {
+                    await historialFrontend.registrarSalida(idSesion);
+                } catch (e) { /* continuar con el cierre */ }
+            }
+
+            sesion.cerrar();
+            sessionStorage.removeItem('id_sesion');
+
+            sessionStorage.setItem('aviso_sesion', mensajePostCierre || 'La sesión se ha cerrado, por favor, vuelva a iniciar sesión');
+            // Avisar a las demas pestanas abiertas para que tambien vuelvan al login
+            localStorage.setItem('sesion_logout', Date.now().toString());
+            window.location.replace('login.html');
+        }
+
+        // Cerrar sesion manual
+        document.getElementById('btnCerrarSesion').addEventListener('click', function() {
+            cerrarSesion();
+        });
+
+        // Cierre automatico tras 5 minutos de inactividad
+        const TIEMPO_INACTIVIDAD = 5 * 60 * 1000;
+        const AVISO_ANTICIPADO = 30 * 1000;
+        let temporizadorInactividad = null;
+        let temporizadorAviso = null;
+
+        function ocultarAvisoInactividad() {
+            document.getElementById('avisoInactividad').style.display = 'none';
+        }
+
+        function programarCierreInactividad() {
+            clearTimeout(temporizadorInactividad);
+            clearTimeout(temporizadorAviso);
+            temporizadorAviso = setTimeout(function() {
+                document.getElementById('avisoInactividad').style.display = 'block';
+            }, TIEMPO_INACTIVIDAD - AVISO_ANTICIPADO);
+            temporizadorInactividad = setTimeout(function() {
+                // En lugar de cerrar sesion: pedir reautenticacion y reanudar donde estaba
+                if (document.getElementById('modalVerificacion').style.display === 'block') {
+                    return;
+                }
+                ocultarAvisoInactividad();
+                esReautenticacion = true;
+                solicitarVerificacionAdmin(
+                    'Tu sesión estuvo inactiva. Ingresa tu contraseña de administrador para continuar donde estabas',
+                    function() {
+                        esReautenticacion = false;
+                        programarCierreInactividad();
+                    },
+                    true
+                );
+            }, TIEMPO_INACTIVIDAD);
+        }
+
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(function(evento) {
+            document.addEventListener(evento, function() {
+                ocultarAvisoInactividad();
+                programarCierreInactividad();
+            }, { passive: true });
+        });
+
+        programarCierreInactividad();
+
+        // Al cerrar la ventana/pestana por completo, notificar al backend para liberar el token de sesion
+        window.addEventListener('pagehide', function() {
+            try {
+                if (usuarioSesion.sessionToken) {
+                    navigator.sendBeacon(
+                        usuarioFrontend.app.baseUrl + '/auth/logout',
+                        new Blob([JSON.stringify({ sessionToken: usuarioSesion.sessionToken })], { type: 'application/json' })
+                    );
+                }
+            } catch (e) { /* mejor esfuerzo: no bloquear el cierre */ }
+        });
+
+        // Lista de usuarios en memoria (no se muestra hasta buscar)
+        let usuariosCache = [];
+        let modoEdicion = false;
+        let edicionPropia = false;
+
+        // Renderiza las filas de la tabla
+        function renderizarFilas(usuarios) {
+            const tbody = document.querySelector('#tablaUsuarios tbody');
+            tbody.innerHTML = '';
+
+            usuarios.forEach(usuario => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${usuario.nombre}</td>
+                    <td>${usuario.cedula}</td>
+                    <td>${usuario.username}</td>
+                    <td>${usuario.email}</td>
+                    <td>${usuario.nombre_rol || '-'}</td>
+                    <td><span class="estado-${usuario.estado.toLowerCase()}">${usuario.estado}</span></td>
+                    <td><div class="acciones-fila">
+                        <button class="btn btn-success" onclick="solicitarEdicion(${usuario.id_usuario})" style="padding: 5px 10px; font-size: 12px;">Editar</button>
+                        ${usuario.id_usuario !== usuarioSesion.id_usuario && usuario.estado === 'Activo' ? `<button class="btn btn-warning" onclick="solicitarBloqueo(${usuario.id_usuario})" style="padding: 5px 10px; font-size: 12px;">Bloquear</button>` : ''}
+                        ${usuario.id_usuario !== usuarioSesion.id_usuario && usuario.estado === 'Bloqueado' ? `<button class="btn btn-outline" onclick="solicitarDesbloqueo(${usuario.id_usuario})" style="padding: 5px 10px; font-size: 12px;">Desbloquear</button>` : ''}
+                        <button class="btn btn-danger" onclick="solicitarEliminacion(${usuario.id_usuario})" style="padding: 5px 10px; font-size: 12px;">Eliminar</button>
+                    </div></td>
+                `;
+                tbody.appendChild(fila);
+            });
+        }
+
+        // Muestra u oculta los resultados segun el texto escrito en el buscador
+        function actualizarResultados() {
+            const texto = document.getElementById('buscadorUsuarios').value.trim().toLowerCase();
+            const contenedor = document.getElementById('contenedorResultados');
+
+            if (!texto) {
+                contenedor.style.display = 'none';
+                return;
+            }
+
+            const filtrados = usuariosCache.filter(u =>
+                (u.nombre || '').toLowerCase().includes(texto) ||
+                (u.cedula || '').toLowerCase().includes(texto) ||
+                (u.username || '').toLowerCase().includes(texto) ||
+                (u.email || '').toLowerCase().includes(texto)
+            );
+
+            contenedor.style.display = 'block';
+            if (filtrados.length === 0) {
+                document.querySelector('#tablaUsuarios tbody').innerHTML =
+                    '<tr><td colspan="7" style="text-align: center;">No se encontraron usuarios</td></tr>';
+            } else {
+                renderizarFilas(filtrados);
+            }
+        }
+
+        // Cargar usuarios en memoria y refrescar resultados si hay texto en el buscador
+        async function cargarUsuarios() {
+            try {
+                usuariosCache = await usuarioFrontend.obtenerTodos();
+                actualizarResultados();
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error al cargar usuarios',
+                    icon: 'error',
+                    confirmButtonText: 'Reintentar'
+                });
+            }
+        }
+
+        // Busqueda en tiempo real mientras se escribe
+        document.getElementById('buscadorUsuarios').addEventListener('input', actualizarResultados);
+
+        // Cargar roles y tipos de documento
+        async function cargarDatosSelects() {
+            try {
+                const roles = await rolFrontend.obtenerTodos();
+                const tiposDoc = await tipoDocFrontend.obtenerTodos();
+                
+                const selectRol = document.getElementById('usuarioRol');
+                const selectTipoDoc = document.getElementById('usuarioTipoDoc');
+                
+                selectRol.innerHTML = '<option value="">Seleccione un rol</option>';
+                roles.forEach(rol => {
+                    selectRol.innerHTML += `<option value="${rol.id_rol}">${rol.nombre_rol}</option>`;
+                });
+                
+                selectTipoDoc.innerHTML = '<option value="">Seleccione tipo de documento</option>';
+                tiposDoc.forEach(tipo => {
+                    selectTipoDoc.innerHTML += `<option value="${tipo.id_tipo_doc}">${tipo.nom_tipo_doc}</option>`;
+                });
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+            }
+        }
+
+        // Modal de verificación de seguridad (doble verificación de administrador)
+        // La verificación correcta queda vigente por 10 minutos en acciones protegidas
+        const VENTANA_VERIFICACION = 10 * 60 * 1000;
+        let verificacionAdminHasta = 0;
+        let accionTrasVerificacion = null;
+        let esReautenticacion = false;
+
+        function solicitarVerificacionAdmin(texto, accion, forzar) {
+            if (!forzar && Date.now() < verificacionAdminHasta) {
+                accion();
+                return;
+            }
+            accionTrasVerificacion = accion;
+            clearTimeout(temporizadorVerif);
+            validandoVerif = false;
+            // Por inactividad el mensaje se adapta al rol; por acciones protegidas se usa el texto recibido
+            const esPorInactividad = esReautenticacion;
+            document.getElementById('textoVerificacion').textContent = esPorInactividad
+                ? 'Tu sesión se bloqueó por inactividad. Ingresa tu ' + (esAdmin ? 'contraseña de administrador' : 'contraseña') + ' para continuar.'
+                : texto;
+            // La X solo aparece cuando el cierre es opcional (no por inactividad)
+            document.getElementById('btnCerrarVerificacion').style.display = esPorInactividad ? 'none' : 'block';
+            document.getElementById('passwordVerificacion').value = '';
+            document.getElementById('passwordVerificacion').disabled = false;
+            estadoVerificacion(null);
+            document.getElementById('modalVerificacion').style.display = 'block';
+            document.getElementById('passwordVerificacion').focus();
+        }
+
+        // Cierre manual del modal: solo cuando NO es reautenticacion por inactividad
+        function cerrarModalVerificacion() {
+            accionTrasVerificacion = null;
+            clearTimeout(temporizadorVerif);
+            document.getElementById('modalVerificacion').style.display = 'none';
+            // Si se cancela la reautenticacion por inactividad, reprogramar el temporizador
+            if (esReautenticacion) {
+                esReautenticacion = false;
+                programarCierreInactividad();
+            }
+        }
+
+        // Estados visuales del campo (mismas clases de validacion del formulario de usuarios)
+        function estadoVerificacion(estado, mensaje) {
+            const input = document.getElementById('passwordVerificacion');
+            const check = document.getElementById('checkVerificacion');
+            const msg = document.getElementById('msgVerificacion');
+            input.classList.remove('campo-valido', 'campo-invalido');
+            check.classList.remove('visible');
+            msg.textContent = '';
+            if (estado === 'error') {
+                input.classList.add('campo-invalido');
+                msg.textContent = mensaje;
+                return false;
+            }
+            if (estado === 'ok') {
+                input.classList.add('campo-valido');
+                check.classList.add('visible');
+                return true;
+            }
+            return null;
+        }
+
+        // Validacion automatica contra el backend (sin botones)
+        async function validarVerificacion() {
+            const password = document.getElementById('passwordVerificacion').value;
+            if (!password || validandoVerif) return;
+            validandoVerif = true;
+            estadoVerificacion(null);
+            document.getElementById('passwordVerificacion').disabled = true;
+
+            try {
+                await usuarioFrontend.verificarAdminPassword(usuarioSesion.id_usuario, password);
+
+                // Check verde breve para que el usuario lo perciba, luego acceso automatico
+                estadoVerificacion('ok');
+                await new Promise(function(resolve) { setTimeout(resolve, 300); });
+
+                document.getElementById('passwordVerificacion').value = '';
+                document.getElementById('passwordVerificacion').disabled = false;
+                validandoVerif = false;
+
+                verificacionAdminHasta = Date.now() + VENTANA_VERIFICACION;
+                const accion = accionTrasVerificacion;
+                accionTrasVerificacion = null;
+                document.getElementById('modalVerificacion').style.display = 'none';
+                if (accion) {
+                    accion();
+                }
+            } catch (error) {
+                validandoVerif = false;
+                document.getElementById('passwordVerificacion').disabled = false;
+                estadoVerificacion('error', 'Contraseña incorrecta');
+                document.getElementById('passwordVerificacion').value = '';
+                document.getElementById('passwordVerificacion').focus();
+            }
+        }
+
+        // Debounce: valida 500 ms despues de dejar de escribir; Enter valida al instante
+        const inputVerificacion = document.getElementById('passwordVerificacion');
+        let temporizadorVerif = null;
+        let validandoVerif = false;
+
+        inputVerificacion.addEventListener('input', function() {
+            clearTimeout(temporizadorVerif);
+            estadoVerificacion(null);
+            temporizadorVerif = setTimeout(validarVerificacion, 500);
+        });
+        inputVerificacion.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                clearTimeout(temporizadorVerif);
+                validarVerificacion();
+            }
+        });
+
+        // Mostrar/ocultar contrasena en el modal de verificacion
+        document.getElementById('ojoVerificacion').addEventListener('click', function() {
+            const visible = inputVerificacion.type === 'password';
+            inputVerificacion.type = visible ? 'text' : 'password';
+            this.querySelector('.ojo-ver').hidden = !visible;
+            this.querySelector('.ojo-ocultar').hidden = visible;
+            this.title = visible ? 'Ocultar contraseña' : 'Mostrar contraseña';
+        });
+
+        // Boton X: cierre manual solo cuando no es reautenticacion por inactividad
+        document.getElementById('btnCerrarVerificacion').addEventListener('click', function() {
+            if (!esReautenticacion) cerrarModalVerificacion();
+        });
+
+        // Clic fuera del recuadro o Escape cierran el modal (excepto reautenticacion por inactividad)
+        document.getElementById('modalVerificacion').addEventListener('click', function(e) {
+            if (e.target === this && !esReautenticacion) cerrarModalVerificacion();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' &&
+                document.getElementById('modalVerificacion').style.display === 'block' &&
+                !esReautenticacion) {
+                cerrarModalVerificacion();
+            }
+        });
+
+        // Consultar directorio completo (tras verificación)
+        function mostrarDirectorio() {
+            document.getElementById('buscadorUsuarios').value = '';
+            renderizarFilas(usuariosCache);
+            document.getElementById('contenedorResultados').style.display = 'block';
+        }
+
+        // Consultar directorio completo: acceso directo SIN pedir contraseña
+        document.getElementById('btnConsultarDirectorio').addEventListener('click', function() {
+            mostrarDirectorio();
+        });
+
+        // Limpia valores y estados visuales de los campos de contraseña
+        function limpiarCamposPassword() {
+            document.getElementById('usuarioPassword').value = '';
+            document.getElementById('usuarioPasswordConfirm').value = '';
+            aplicarEstadoCampo('Password', null);
+            aplicarEstadoCampo('PasswordConfirm', null);
+        }
+
+        // Muestra el campo confirmar solo cuando aplica: siempre en crear,
+        // en editar solo si el admin escribio una nueva contraseña
+        function actualizarGrupoConfirmar() {
+            const grupo = document.getElementById('grupoConfirmarPassword');
+            // Operario en su configuracion: solo cambia contrasena, confirmar siempre visible
+            const soloPassword = edicionPropia && !esAdmin;
+            const visible = !modoEdicion || soloPassword || document.getElementById('usuarioPassword').value !== '';
+            grupo.style.display = visible ? 'block' : 'none';
+            document.getElementById('usuarioPassword').required = !modoEdicion || soloPassword;
+            document.getElementById('usuarioPasswordConfirm').required = visible;
+        }
+
+        // Seccion de contrasena del modal: Operario ve datos enmascarados hasta verificar su identidad
+        function configurarSeccionPassword(soloPassword) {
+            document.getElementById('grupoPasswordSoloLectura').style.display = soloPassword ? 'block' : 'none';
+            document.getElementById('grupoEdicionPassword').style.display = soloPassword ? 'none' : 'block';
+            document.getElementById('grupoAccionesForm').style.display = soloPassword ? 'none' : 'flex';
+            document.querySelector('label[for="usuarioPassword"]').textContent = soloPassword ? 'Nueva contraseña' : 'Contraseña';
+        }
+
+        // Tras la verificacion de seguridad: mostrar campos de nueva contrasena y guardar
+        function revelarEdicionPassword() {
+            const grupo = document.getElementById('grupoEdicionPassword');
+            grupo.style.display = 'block';
+            grupo.classList.remove('aparecer');
+            void grupo.offsetWidth;
+            grupo.classList.add('aparecer');
+            document.getElementById('grupoAccionesForm').style.display = 'flex';
+            actualizarGrupoConfirmar();
+            document.getElementById('usuarioPassword').focus();
+        }
+
+        // Operario: modificar contrasena exige verificacion de seguridad (siempre, sin ventana de 10 min)
+        document.getElementById('btnModificarPassword').addEventListener('click', function() {
+            solicitarVerificacionAdmin(
+                'Vas a modificar tu contraseña. Ingresa tu contraseña para continuar',
+                revelarEdicionPassword,
+                true
+            );
+        });
+
+        // Abrir formulario de nuevo usuario
+        function abrirModalNuevo() {
+            modoEdicion = false;
+            edicionPropia = false;
+            document.getElementById('tituloModalUsuario').textContent = 'Nuevo Usuario';
+            configurarSeccionPassword(false);
+            ['usuarioNombre', 'usuarioTipoDoc', 'usuarioCedula', 'usuarioEmail', 'usuarioUsername', 'usuarioRol']
+                .forEach(idCampo => document.getElementById(idCampo).disabled = false);
+            document.getElementById('formUsuario').reset();
+            document.getElementById('usuarioId').value = '';
+            aplicarEstadoCampo('Cedula', null);
+            aplicarEstadoCampo('Email', null);
+            aplicarEstadoCampo('Username', null);
+            limpiarCamposPassword();
+            actualizarGrupoConfirmar();
+            document.getElementById('modalUsuario').style.display = 'block';
+            cargarDatosSelects();
+        }
+
+        // Modal nuevo usuario (protegido por verificación)
+        document.getElementById('btnNuevoUsuario').addEventListener('click', function() {
+            solicitarVerificacionAdmin(
+                'Vas a crear un nuevo usuario. Ingresa tu contraseña de administrador para continuar',
+                abrirModalNuevo
+            );
+        });
+
+        // Editar usuario (protegido por verificación)
+        function solicitarEdicion(id) {
+            const usuario = usuariosCache.find(u => u.id_usuario === id);
+            const nombre = usuario ? usuario.nombre : 'seleccionado';
+            solicitarVerificacionAdmin(
+                `Vas a editar al usuario: ${nombre}. Ingresa tu contraseña de administrador para continuar`,
+                () => editarUsuario(id)
+            );
+        }
+
+        // Eliminar usuario (protegido por verificación)
+        function solicitarEliminacion(id) {
+            const usuario = usuariosCache.find(u => u.id_usuario === id);
+            const nombre = usuario ? `${usuario.nombre} (${usuario.username})` : 'seleccionado';
+            solicitarVerificacionAdmin(
+                `Vas a eliminar al usuario: ${nombre}. Ingresa tu contraseña de administrador para continuar`,
+                () => eliminarUsuario(id)
+            );
+        }
+
+        // Cancelar modal
+        document.getElementById('btnCancelarUsuario').addEventListener('click', function() {
+            document.getElementById('modalUsuario').style.display = 'none';
+            limpiarCamposPassword();
+            actualizarGrupoConfirmar();
+        });
+
+        // Validacion en tiempo real de cedula, email y username.
+        // usuariosCache ya excluye registros con estado 'Eliminado' (GET /obtener filtra estado != Eliminado)
+        function debounce(fn, ms) {
+            let temporizador;
+            return function() {
+                clearTimeout(temporizador);
+                temporizador = setTimeout(fn, ms);
+            };
+        }
+
+        function aplicarEstadoCampo(sufijo, estado, mensaje) {
+            const input = document.getElementById('usuario' + sufijo);
+            const check = document.getElementById('check' + sufijo);
+            const msg = document.getElementById('msg' + sufijo);
+            input.classList.remove('campo-valido', 'campo-invalido');
+            check.classList.remove('visible');
+            msg.textContent = '';
+            if (estado === 'error') {
+                input.classList.add('campo-invalido');
+                msg.textContent = mensaje;
+                return false;
+            }
+            if (estado === 'ok') {
+                input.classList.add('campo-valido');
+                check.classList.add('visible');
+                return true;
+            }
+            return null;
+        }
+
+        // Busca duplicados en usuariosCache excluyendo el usuario que se esta editando
+        function usuarioEnUso(campo, valor) {
+            const idActual = parseInt(document.getElementById('usuarioId').value) || null;
+            return usuariosCache.some(u => u.id_usuario !== idActual && String(u[campo]) === valor);
+        }
+
+        function validarCedula() {
+            const valor = document.getElementById('usuarioCedula').value.trim();
+            if (!valor) return aplicarEstadoCampo('Cedula', null);
+            if (!/^\d+$/.test(valor)) {
+                return aplicarEstadoCampo('Cedula', 'error', 'La cedula debe contener solo numeros');
+            }
+            if (usuarioEnUso('cedula', valor)) {
+                return aplicarEstadoCampo('Cedula', 'error', 'La cedula ya esta registrada');
+            }
+            return aplicarEstadoCampo('Cedula', 'ok');
+        }
+
+        function validarUsername() {
+            const valor = document.getElementById('usuarioUsername').value.trim();
+            if (!valor) return aplicarEstadoCampo('Username', null);
+            if (usuarioEnUso('username', valor)) {
+                return aplicarEstadoCampo('Username', 'error', 'El nombre de usuario ya existe, elige otro');
+            }
+            return aplicarEstadoCampo('Username', 'ok');
+        }
+
+        function validarEmail() {
+            const valor = document.getElementById('usuarioEmail').value.trim();
+            if (!valor) return aplicarEstadoCampo('Email', null);
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) {
+                return aplicarEstadoCampo('Email', 'error', 'Formato de correo invalido');
+            }
+            if (usuarioEnUso('email', valor)) {
+                return aplicarEstadoCampo('Email', 'error', 'El correo ya esta registrado');
+            }
+            return aplicarEstadoCampo('Email', 'ok');
+        }
+
+        // Contrasena: obligatoria al crear (minimo 6), opcional al editar (vacia = conservar la actual)
+        function validarPassword() {
+            const valor = document.getElementById('usuarioPassword').value;
+            if (!valor) {
+                aplicarEstadoCampo('Password', null);
+                // En edicion normal la clave es opcional; en configuracion de Operario es obligatoria
+                if (modoEdicion && !(edicionPropia && !esAdmin)) return true;
+                return aplicarEstadoCampo('Password', 'error', 'La contraseña es obligatoria');
+            }
+            if (valor.length < 6) {
+                return aplicarEstadoCampo('Password', 'error', 'Minimo 6 caracteres');
+            }
+            return aplicarEstadoCampo('Password', 'ok');
+        }
+
+        // Confirmar contrasena: solo aplica cuando el grupo esta visible
+        function validarPasswordConfirm() {
+            const grupo = document.getElementById('grupoConfirmarPassword');
+            if (grupo.style.display === 'none') {
+                aplicarEstadoCampo('PasswordConfirm', null);
+                return true;
+            }
+            const password = document.getElementById('usuarioPassword').value;
+            const confirmar = document.getElementById('usuarioPasswordConfirm').value;
+            if (!confirmar) {
+                return aplicarEstadoCampo('PasswordConfirm', 'error', 'Confirma la contraseña');
+            }
+            if (confirmar !== password) {
+                return aplicarEstadoCampo('PasswordConfirm', 'error', 'Las contraseñas no coinciden');
+            }
+            return aplicarEstadoCampo('PasswordConfirm', 'ok');
+        }
+
+        // Escuchar cambios con debounce de 300 ms
+        document.getElementById('usuarioCedula').addEventListener('input', debounce(validarCedula, 300));
+        document.getElementById('usuarioUsername').addEventListener('input', debounce(validarUsername, 300));
+        document.getElementById('usuarioEmail').addEventListener('input', debounce(validarEmail, 300));
+        document.getElementById('usuarioPassword').addEventListener('input', debounce(function() {
+            validarPassword();
+            actualizarGrupoConfirmar();
+            validarPasswordConfirm();
+        }, 300));
+        document.getElementById('usuarioPasswordConfirm').addEventListener('input', debounce(validarPasswordConfirm, 300));
+
+        // Mostrar/ocultar contrasenas en el modal de usuario
+        document.getElementById('ojoPassword').addEventListener('click', function() {
+            const input = document.getElementById('usuarioPassword');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+        document.getElementById('ojoPasswordConfirm').addEventListener('click', function() {
+            const input = document.getElementById('usuarioPasswordConfirm');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+
+        // Guardar usuario
+        document.getElementById('formUsuario').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Refrescar visibilidad del confirmar por si se escribio la clave hace menos del debounce
+            actualizarGrupoConfirmar();
+
+            // Bloquear envio si hay duplicados, formato invalido o contrasenas que no coinciden
+            const valido = [validarCedula(), validarUsername(), validarEmail(), validarPassword(), validarPasswordConfirm()].every(v => v === true);
+            if (!valido) {
+                Swal.fire({
+                    title: 'Datos invalidos',
+                    text: 'Revisa los campos marcados en rojo antes de guardar',
+                    icon: 'warning',
+                    confirmButtonText: 'Entendido'
+                });
+                return;
+            }
+
+            const id = document.getElementById('usuarioId').value;
+            const datos = {
+                nombre: document.getElementById('usuarioNombre').value,
+                id_tipo_doc_FK: document.getElementById('usuarioTipoDoc').value,
+                cedula: document.getElementById('usuarioCedula').value,
+                email: document.getElementById('usuarioEmail').value,
+                username: document.getElementById('usuarioUsername').value,
+                id_rol_FK: document.getElementById('usuarioRol').value,
+                password: document.getElementById('usuarioPassword').value
+            };
+            
+            try {
+                if (id) {
+                    await usuarioFrontend.actualizar(id, datos);
+                    Swal.fire({
+                        title: 'Exito',
+                        text: 'Usuario actualizado con exito',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    await usuarioFrontend.registrar(datos);
+                    Swal.fire({
+                        title: 'Exito',
+                        text: 'Usuario registrado con exito',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                }
+                
+                // Limpiar contraseña para que el navegador no ofrezca guardarla
+                limpiarCamposPassword();
+                document.getElementById('modalUsuario').style.display = 'none';
+
+                // Si edito su propio perfil, reflejar los cambios en la sesion y la barra superior
+                if (id && edicionPropia) {
+                    const sesionActual = sesion.obtener() || {};
+                    sesionActual.nombre = datos.nombre;
+                    sesionActual.username = datos.username;
+                    sesion.guardar(sesionActual);
+                    document.getElementById('btnUsuarioNombre').textContent = datos.username;
+                }
+                ['usuarioNombre', 'usuarioTipoDoc', 'usuarioCedula', 'usuarioEmail', 'usuarioUsername', 'usuarioRol']
+                    .forEach(idCampo => document.getElementById(idCampo).disabled = false);
+
+                // La lista de usuarios solo existe para administradores
+                if (esAdmin) cargarUsuarios();
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: error.mensaje || 'Error al guardar usuario',
+                    icon: 'error',
+                    confirmButtonText: 'Reintentar'
+                });
+            }
+        });
+
+        // Editar usuario
+        async function editarUsuario(id) {
+            try {
+                edicionPropia = String(id) === String(usuarioSesion.id_usuario);
+                // El listado completo de usuarios solo esta disponible para administradores;
+                // un usuario normal edita su perfil mediante el endpoint propio
+                let usuario;
+                if (edicionPropia && !esAdmin) {
+                    usuario = await usuarioFrontend.obtenerPerfil();
+                } else {
+                    const usuarios = await usuarioFrontend.obtenerTodos();
+                    usuario = usuarios.find(u => u.id_usuario === id);
+                }
+
+                if (usuario) {
+                    modoEdicion = true;
+                    document.getElementById('tituloModalUsuario').textContent = edicionPropia ? 'Mi Configuración' : 'Editar Usuario';
+                    document.getElementById('usuarioId').value = usuario.id_usuario;
+                    document.getElementById('usuarioNombre').value = usuario.nombre;
+                    document.getElementById('usuarioCedula').value = usuario.cedula;
+                    document.getElementById('usuarioEmail').value = usuario.email;
+                    document.getElementById('usuarioUsername').value = usuario.username;
+                    limpiarCamposPassword();
+                    
+                    await cargarDatosSelects();
+                    
+                    document.getElementById('usuarioTipoDoc').value = usuario.id_tipo_doc_FK || '';
+                    document.getElementById('usuarioRol').value = usuario.id_rol_FK || '';
+                    // Operario en su propia configuracion: datos en solo lectura y contrasena enmascarada
+                    const soloPassword = edicionPropia && !esAdmin;
+                    ['usuarioNombre', 'usuarioTipoDoc', 'usuarioCedula', 'usuarioEmail', 'usuarioUsername', 'usuarioRol']
+                        .forEach(idCampo => document.getElementById(idCampo).disabled = soloPassword);
+                    configurarSeccionPassword(soloPassword);
+
+                    actualizarGrupoConfirmar();
+
+                    // Validar campos ya diligenciados (excluye el propio usuario por id)
+                    validarCedula();
+                    validarUsername();
+                    validarEmail();
+
+                    document.getElementById('modalUsuario').style.display = 'block';
+                }
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error al cargar usuario',
+                    icon: 'error',
+                    confirmButtonText: 'Reintentar'
+                });
+            }
+        }
+
+        // Bloquear/Desbloquear: SIEMPRE exige verificacion de administrador (ignora la ventana de 10 min)
+        function solicitarBloqueo(id) {
+            const usuario = usuariosCache.find(u => u.id_usuario === id);
+            const nombre = usuario ? `${usuario.nombre} (${usuario.username})` : 'seleccionado';
+            solicitarVerificacionAdmin(
+                `Vas a bloquear al usuario: ${nombre}. Ingresa tu contraseña de administrador para continuar`,
+                () => bloquearUsuario(id),
+                true
+            );
+        }
+
+        function solicitarDesbloqueo(id) {
+            const usuario = usuariosCache.find(u => u.id_usuario === id);
+            const nombre = usuario ? `${usuario.nombre} (${usuario.username})` : 'seleccionado';
+            solicitarVerificacionAdmin(
+                `Vas a desbloquear al usuario: ${nombre}. Ingresa tu contraseña de administrador para continuar`,
+                () => desbloquearUsuario(id),
+                true
+            );
+        }
+
+        // Bloquear usuario
+        async function bloquearUsuario(id) {
+            Swal.fire({
+                title: 'Bloquear usuario',
+                text: '¿Esta seguro de que desea bloquear este usuario?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Si, bloquear',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await usuarioFrontend.bloquear(id);
+                        Swal.fire({
+                            title: 'Exito',
+                            text: 'Usuario bloqueado con exito',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        cargarUsuarios();
+                    } catch (error) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: error.mensaje || 'Error al bloquear usuario',
+                            icon: 'error',
+                            confirmButtonText: 'Reintentar'
+                        });
+                    }
+                }
+            });
+        }
+
+        // Desbloquear usuario
+        async function desbloquearUsuario(id) {
+            Swal.fire({
+                title: 'Desbloquear usuario',
+                text: '¿Esta seguro de que desea desbloquear este usuario?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Si, desbloquear',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await usuarioFrontend.desbloquear(id);
+                        Swal.fire({
+                            title: 'Exito',
+                            text: 'Usuario desbloqueado con exito',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        cargarUsuarios();
+                    } catch (error) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Error al desbloquear usuario',
+                            icon: 'error',
+                            confirmButtonText: 'Reintentar'
+                        });
+                    }
+                }
+            });
+        }
+
+        // Eliminar usuario
+        async function eliminarUsuario(id) {
+            Swal.fire({
+                title: 'Eliminar usuario',
+                text: '¿Esta seguro de que desea eliminar este usuario?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await usuarioFrontend.eliminar(id, usuarioSesion.id_usuario);
+                        Swal.fire({
+                            title: 'Exito',
+                            text: 'Usuario eliminado con exito',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        cargarUsuarios();
+                    } catch (error) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: error.mensaje || 'Error al eliminar usuario',
+                            icon: 'error',
+                            confirmButtonText: 'Reintentar'
+                        });
+                    }
+                }
+            });
+        }
+
+        // Cargar historial
+        async function cargarHistorial() {
+            try {
+                const historial = await historialFrontend.obtenerTodos();
+                const tbody = document.querySelector('#tablaHistorial tbody');
+                tbody.innerHTML = '';
+                
+                historial.forEach(registro => {
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${registro.nombre || registro.username}</td>
+                        <td>${registro.fecha_ingreso ? new Date(registro.fecha_ingreso).toLocaleString() : '-'}</td>
+                        <td>${registro.fecha_salida ? new Date(registro.fecha_salida).toLocaleString() : '-'}</td>
+                        <td>${registro.ip_acceso || '-'}</td>
+                    `;
+                    tbody.appendChild(fila);
+                });
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error al cargar historial',
+                    icon: 'error',
+                    confirmButtonText: 'Reintentar'
+                });
+            }
+        }
+    </script>
+</body>
+</html>

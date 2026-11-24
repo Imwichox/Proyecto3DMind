@@ -12,6 +12,7 @@ class Usuario {
         this.password = datos.password || '';
         this.estado = datos.estado || 'Activo';
         this.int_fallidos = datos.int_fallidos || 0;
+        this.debe_cambiar_password = datos.debe_cambiar_password ? 1 : 0;
         this.id_rol_FK = datos.id_rol_FK || null;
         this.id_tipo_doc_FK = datos.id_tipo_doc_FK || null;
     }
@@ -23,8 +24,8 @@ class Usuario {
             const passwordEncriptada = await bcrypt.hash(this.password, 10);
             
             const [resultado] = await conexion.query(
-                'INSERT INTO usuario (cedula, nombre, email, username, password, id_rol_FK, id_tipo_doc_FK) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [this.cedula, this.nombre, this.email, this.username, passwordEncriptada, this.id_rol_FK, this.id_tipo_doc_FK]
+                'INSERT INTO usuario (cedula, nombre, email, username, password, estado, int_fallidos, debe_cambiar_password, id_rol_FK, id_tipo_doc_FK) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [this.cedula, this.nombre, this.email, this.username, passwordEncriptada, this.estado, this.int_fallidos, this.debe_cambiar_password, this.id_rol_FK, this.id_tipo_doc_FK]
             );
             
             conexion.release();
@@ -54,7 +55,7 @@ class Usuario {
         try {
             const conexion = await bd.obtenerConexion();
             const [filas] = await conexion.query(
-                'SELECT cedula, email, username FROM usuario WHERE cedula = ? OR email = ? OR username = ?',
+                'SELECT cedula, email, username, estado FROM usuario WHERE cedula = ? OR email = ? OR username = ?',
                 [cedula, email, username]
             );
             conexion.release();
@@ -69,7 +70,7 @@ class Usuario {
         try {
             const conexion = await bd.obtenerConexion();
             const [filas] = await conexion.query(
-                'SELECT cedula, email, username FROM usuario WHERE (cedula = ? OR email = ? OR username = ?) AND id_usuario != ?',
+                'SELECT cedula, email, username, estado FROM usuario WHERE (cedula = ? OR email = ? OR username = ?) AND id_usuario != ?',
                 [cedula, email, username, id]
             );
             conexion.release();
@@ -137,8 +138,8 @@ class Usuario {
     async actualizar(id, datos) {
         try {
             const conexion = await bd.obtenerConexion();
-            let query = 'UPDATE usuario SET nombre = ?, email = ?, username = ?, id_rol_FK = ?, id_tipo_doc_FK = ?';
-            const valores = [datos.nombre, datos.email, datos.username, datos.id_rol_FK, datos.id_tipo_doc_FK];
+            let query = 'UPDATE usuario SET nombre = ?, cedula = ?, email = ?, username = ?, id_rol_FK = ?, id_tipo_doc_FK = ?';
+            const valores = [datos.nombre, datos.cedula, datos.email, datos.username, datos.id_rol_FK, datos.id_tipo_doc_FK];
             
             if (datos.password && datos.password !== '') {
                 const passwordEncriptada = await bcrypt.hash(datos.password, 10);
@@ -149,9 +150,9 @@ class Usuario {
             query += ' WHERE id_usuario = ?';
             valores.push(id);
             
-            await conexion.query(query, valores);
+            const [resultado] = await conexion.query(query, valores);
             conexion.release();
-            return true;
+            return resultado.affectedRows > 0;
         } catch (error) {
             throw error;
         }
@@ -172,31 +173,31 @@ class Usuario {
         }
     }
 
-    // Metodo para bloquear usuario
+    // Metodo para bloquear usuario (solo si esta Activo)
     async bloquear(id) {
         try {
             const conexion = await bd.obtenerConexion();
-            await conexion.query(
-                'UPDATE usuario SET estado = "Bloqueado" WHERE id_usuario = ?',
+            const [resultado] = await conexion.query(
+                'UPDATE usuario SET estado = "Bloqueado" WHERE id_usuario = ? AND estado = "Activo"',
                 [id]
             );
             conexion.release();
-            return true;
+            return resultado.affectedRows;
         } catch (error) {
             throw error;
         }
     }
 
-    // Metodo para desbloquear usuario
+    // Metodo para desbloquear usuario (solo si esta Bloqueado; resetea intentos)
     async desbloquear(id) {
         try {
             const conexion = await bd.obtenerConexion();
-            await conexion.query(
-                'UPDATE usuario SET estado = "Activo", int_fallidos = 0 WHERE id_usuario = ?',
+            const [resultado] = await conexion.query(
+                'UPDATE usuario SET estado = "Activo", int_fallidos = 0 WHERE id_usuario = ? AND estado = "Bloqueado"',
                 [id]
             );
             conexion.release();
-            return true;
+            return resultado.affectedRows;
         } catch (error) {
             throw error;
         }
@@ -206,12 +207,41 @@ class Usuario {
     async eliminar(id) {
         try {
             const conexion = await bd.obtenerConexion();
-            await conexion.query(
+            const [resultado] = await conexion.query(
                 'UPDATE usuario SET estado = "Eliminado" WHERE id_usuario = ?',
                 [id]
             );
             conexion.release();
-            return true;
+            return resultado.affectedRows > 0;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Metodo para cambiar la contraseña y desactivar la bandera de primer ingreso
+    async cambiarPassword(id, passwordEncriptada) {
+        try {
+            const conexion = await bd.obtenerConexion();
+            const [resultado] = await conexion.query(
+                'UPDATE usuario SET password = ?, debe_cambiar_password = 0 WHERE id_usuario = ?',
+                [passwordEncriptada, id]
+            );
+            conexion.release();
+            return resultado.affectedRows > 0;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Metodo para contar usuarios que no estan eliminados (estado del setup inicial)
+    async contarNoEliminados() {
+        try {
+            const conexion = await bd.obtenerConexion();
+            const [filas] = await conexion.query(
+                'SELECT COUNT(*) as total FROM usuario WHERE estado != "Eliminado"'
+            );
+            conexion.release();
+            return filas[0].total;
         } catch (error) {
             throw error;
         }

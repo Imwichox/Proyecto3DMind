@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D MIND - Iniciar Sesión</title>
+    <link rel="icon" type="image/png" href="img/icon-192.png">
+    <link rel="shortcut icon" href="img/icon-192.png">
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="fade-in inicio-pagina">
+    <div class="inicio-glow" aria-hidden="true"></div>
+
+    <main class="inicio-contenedor">
+        <section id="loginCard" class="inicio-card login-card animate__animated animate__fadeIn">
+            <!-- Cabecera: logo + marca (transiciona a formato compacto al revelar el formulario) -->
+            <div class="login-hero">
+                <img src="img/logo.png" alt="3D MIND Logo" class="login-logo">
+                <h1 class="login-titulo">3D MIND</h1>
+            </div>
+
+            <!-- Formulario de inicio de sesion -->
+            <div class="login-form-wrap">
+                <h2 class="login-subtitulo">Iniciar Sesión</h2>
+
+                <form id="formLogin" autocomplete="off" class="inicio-form">
+                    <div class="form-group">
+                        <label for="username">Usuario</label>
+                        <input type="text" id="username" name="username" placeholder="Ingrese su usuario" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <div class="inicio-password">
+                            <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" autocomplete="new-password" required>
+                            <button type="button" id="mostrarPassword" class="inicio-ojo" title="Mostrar contraseña"><svg class="ojo-ocultar" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg><svg class="ojo-ver" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-inicio btn-entrar" id="btnLogin">
+                        <span id="btnTexto">Entrar</span>
+                    </button>
+                </form>
+
+                <div class="login-enlaces">
+                    <a href="#" id="olvidePassword" class="login-link">Olvidé mi contraseña</a>
+                    <a href="index.html" class="login-link">Volver al inicio</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de cambio obligatorio de contraseña (primer ingreso) -->
+    <div id="modalCambioPassword" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(10,10,14,0.7); z-index: 1000; backdrop-filter: blur(4px);">
+        <div class="inicio-card login-modal-card">
+            <h2 class="login-subtitulo" style="margin-bottom: 6px;">Actualización obligatoria</h2>
+            <p class="login-nota">
+                Es tu primer ingreso. Por seguridad, establece una nueva contraseña antes de continuar.
+            </p>
+            <form id="formCambioPassword" autocomplete="off" class="inicio-form">
+                <div class="form-group">
+                    <label for="nuevaPassword">Nueva contraseña</label>
+                    <input type="password" id="nuevaPassword" autocomplete="new-password" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="confirmarPassword">Confirmar contraseña</label>
+                    <input type="password" id="confirmarPassword" autocomplete="new-password" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary btn-inicio" style="width: 100%;" id="btnCambioPassword">
+                    <span id="btnCambioTexto">Actualizar contraseña</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Notificaciones automaticas: se cierran solas a los 4 segundos sin boton;
+        // los dialogos de confirmacion (showCancelButton) conservan sus botones
+        (function() {
+            const swalOriginal = Swal.fire.bind(Swal);
+            Swal.fire = function(opciones) {
+                if (opciones && opciones.showCancelButton) {
+                    return swalOriginal(opciones);
+                }
+                return swalOriginal(Object.assign({ timer: 3000, timerProgressBar: true, showConfirmButton: false, position: 'top-end', customClass: { popup: 'swal-mini' } }, opciones));
+            };
+        })();
+
+        // Resultado completo del login cuando el usuario debe cambiar su contraseña en el primer ingreso
+        let usuarioPendiente = null;
+
+        // Aviso de cierre de sesion (viene del panel via sessionStorage; fallback a localStorage legado)
+        const avisoSesion = sessionStorage.getItem('aviso_sesion') || localStorage.getItem('aviso_sesion');
+        if (avisoSesion) {
+            sessionStorage.removeItem('aviso_sesion');
+            localStorage.removeItem('aviso_sesion');
+            Swal.fire({
+                title: 'Sesion cerrada',
+                text: avisoSesion,
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
+        }
+
+        // Si ya hay sesion activa, ir directo al panel
+        if (sesion.estaActiva()) {
+            window.location.href = 'panel.html';
+        }
+
+        // Si la base de datos esta vacia, el flujo correcto es el de configuracion inicial
+        usuarioFrontend.obtenerSetupStatus()
+            .then(estado => {
+                if (estado.needsSetup) {
+                    window.location.replace('index.html');
+                }
+            })
+            .catch(() => { /* si falla la consulta, se muestra el login normal */ });
+
+        // Transicion suave: cabecera compacta + revelado del formulario
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loginCard').classList.add('listo');
+            }, 250);
+        });
+
+        // Guardar la sesion completa devuelta por el backend (usuario + token + datos de conexion)
+        function guardarSesion(resultado) {
+            const datosSesion = Object.assign({}, resultado.usuario, {
+                sessionToken: resultado.sessionToken,
+                ip: resultado.ip,
+                fecha_ingreso: resultado.fecha_ingreso
+            });
+            sesion.guardar(datosSesion);
+
+            // El registro en historial ya lo hizo el backend al iniciar sesion
+            if (resultado.id_sesion) {
+                sessionStorage.setItem('id_sesion', resultado.id_sesion);
+            }
+        }
+
+        // Continuar al panel despues de login exitoso o cambio de contraseña
+        async function continuarAlPanel(resultado) {
+            // Limpiar el campo de contraseña para que el navegador no ofrezca guardarla
+            const campoPassword = document.getElementById('password');
+            if (campoPassword) campoPassword.value = '';
+
+            guardarSesion(resultado);
+
+            // Notificacion de bienvenida que avanza sola al panel tras ~3 segundos
+            Swal.fire({
+                title: 'Inicio de sesion exitoso',
+                text: 'Bienvenido, ' + resultado.usuario.nombre,
+                icon: 'success',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = 'panel.html';
+            });
+        }
+
+        // Enviar nueva contraseña al backend
+        document.getElementById('formCambioPassword').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const nuevaPassword = document.getElementById('nuevaPassword').value;
+            const confirmarPassword = document.getElementById('confirmarPassword').value;
+            const btnCambio = document.getElementById('btnCambioPassword');
+            const btnCambioTexto = document.getElementById('btnCambioTexto');
+
+            btnCambio.disabled = true;
+            btnCambioTexto.textContent = 'Actualizando...';
+
+            try {
+                await usuarioFrontend.cambiarPassword(usuarioPendiente.usuario.id_usuario, nuevaPassword, confirmarPassword);
+
+                document.getElementById('modalCambioPassword').style.display = 'none';
+                document.getElementById('formCambioPassword').reset();
+
+                // Limpiar la contraseña temporal para que el navegador no ofrezca guardarla
+                const campoPassword = document.getElementById('password');
+                if (campoPassword) campoPassword.value = '';
+
+                guardarSesion(usuarioPendiente);
+
+                // Notificacion de bienvenida que avanza sola al panel tras ~3 segundos
+                Swal.fire({
+                    title: 'Bienvenido',
+                    text: `¡Bienvenido a 3D MIND, ${usuarioPendiente.usuario.nombre}! Contraseña actualizada con éxito.`,
+                    icon: 'success',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = 'panel.html';
+                });
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: error.mensaje || 'Error al actualizar la contraseña',
+                    icon: 'error',
+                    confirmButtonText: 'Reintentar'
+                });
+            } finally {
+                btnCambio.disabled = false;
+                btnCambioTexto.textContent = 'Actualizar contraseña';
+            }
+        });
+
+        // Mostrar/ocultar contraseña
+        document.getElementById('mostrarPassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const visible = passwordInput.type === 'password';
+            passwordInput.type = visible ? 'text' : 'password';
+            this.querySelector('.ojo-ver').hidden = !visible;
+            this.querySelector('.ojo-ocultar').hidden = visible;
+            this.title = visible ? 'Ocultar contraseña' : 'Mostrar contraseña';
+        });
+
+        // Olvide mi contraseña
+        document.getElementById('olvidePassword').addEventListener('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Olvide mi contraseña',
+                text: 'Contacte al Administrador del sistema para restablecer su contraseña.',
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
+        });
+
+        // Manejar login
+        document.getElementById('formLogin').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const btnLogin = document.getElementById('btnLogin');
+            const btnTexto = document.getElementById('btnTexto');
+
+            // Mostrar spinner
+            btnLogin.disabled = true;
+            btnTexto.innerHTML = '<span class="spinner"></span>Iniciando sesion...';
+
+            try {
+                const resultado = await usuarioFrontend.iniciarSesion(username, password);
+
+                if (resultado.mensaje === 'Inicio de sesion exitoso' && resultado.requiereCambioPassword) {
+                    // Primer ingreso: exigir cambio de contraseña antes de entrar
+                    usuarioPendiente = resultado;
+                    document.getElementById('formCambioPassword').reset();
+                    document.getElementById('modalCambioPassword').style.display = 'block';
+
+                    btnLogin.disabled = false;
+                    btnTexto.textContent = 'Entrar';
+                } else if (resultado.mensaje === 'Inicio de sesion exitoso') {
+                    continuarAlPanel(resultado);
+                } else {
+                    // Error en login
+                    btnLogin.disabled = false;
+                    btnTexto.textContent = 'Entrar';
+
+                    // Animacion de sacudida
+                    const card = document.getElementById('loginCard');
+                    card.classList.add('animate__animated', 'animate__shakeX');
+                    setTimeout(() => {
+                        card.classList.remove('animate__animated', 'animate__shakeX');
+                    }, 500);
+
+                    Swal.fire({
+                        title: 'Error',
+                        text: resultado.mensaje,
+                        icon: 'error',
+                        confirmButtonText: 'Reintentar'
+                    });
+                }
+            } catch (error) {
+                btnLogin.disabled = false;
+                btnTexto.textContent = 'Entrar';
+
+                Swal.fire({
+                    title: 'Error',
+                    text: error.mensaje || 'Error al conectar con el servidor',
+                    icon: 'error',
+                    confirmButtonText: 'Reintentar'
+                });
+            }
+        });
+    </script>
+</body>
+</html>

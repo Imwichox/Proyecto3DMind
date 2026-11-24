@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D MIND - Inicio</title>
+    <link rel="icon" type="image/png" href="img/icon-192.png">
+    <link rel="shortcut icon" href="img/icon-192.png">
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="fade-in inicio-pagina">
+    <div class="inicio-glow" aria-hidden="true"></div>
+
+    <main class="inicio-contenedor">
+        <!-- Vista de bienvenida / acceso -->
+        <section id="vistaInicio" class="inicio-card animate__animated animate__fadeIn">
+            <img src="img/logo.png" alt="3D MIND Logo" class="inicio-logo">
+
+            <div id="avisoSesionInicio" class="inicio-aviso" style="display: none;"></div>
+
+            <h1 class="inicio-titulo">3D MIND</h1>
+            <p id="mensajeInicio" class="inicio-mensaje">Cargando...</p>
+
+            <div class="inicio-acciones">
+                <button id="btnSiguiente" class="btn btn-primary btn-inicio" style="display: none;">
+                    Siguiente
+                </button>
+                <a id="btnLogin" href="login.html" class="btn btn-primary btn-inicio" style="display: none; text-decoration: none;">
+                    Iniciar Sesión
+                </a>
+            </div>
+
+            <p class="inicio-pie">3D MIND · v1.0</p>
+        </section>
+
+        <!-- Vista de registro del primer administrador -->
+        <section id="vistaSetup" class="inicio-card animate__animated animate__fadeIn" style="display: none;">
+            <button type="button" id="btnVolverInicio" class="inicio-volver" title="Volver">&#8592;</button>
+
+            <img src="img/logo.png" alt="3D MIND Logo" class="inicio-logo">
+            <h1 class="inicio-titulo">Configuración inicial</h1>
+            <p class="inicio-mensaje">Crea la cuenta del administrador del sistema.</p>
+
+            <form id="formSetup" autocomplete="off" class="inicio-form">
+                <div class="form-group">
+                    <label for="setupNombre">Nombre completo</label>
+                    <input type="text" id="setupNombre" name="nombre" placeholder="Nombre y apellido" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="setupCedula">Cédula</label>
+                    <input type="text" id="setupCedula" name="cedula" placeholder="Solo números" required>
+                </div>
+                <div class="form-group">
+                    <label for="setupEmail">Correo electrónico</label>
+                    <input type="email" id="setupEmail" name="email" placeholder="correo@ejemplo.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="setupUsername">Nombre de usuario</label>
+                    <input type="text" id="setupUsername" name="username" placeholder="Usuario para iniciar sesión" required>
+                </div>
+                <div class="form-group">
+                    <label for="setupPassword">Contraseña</label>
+                    <div class="inicio-password">
+                        <input type="password" id="setupPassword" name="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required minlength="6">
+                        <button type="button" id="mostrarSetupPassword" class="inicio-ojo" title="Mostrar contraseña"><svg class="ojo-ocultar" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg><svg class="ojo-ver" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="setupConfirmar">Confirmar contraseña</label>
+                    <input type="password" id="setupConfirmar" name="confirmar" placeholder="Repite la contraseña" autocomplete="new-password" required minlength="6">
+                </div>
+
+                <p id="errorSetup" class="inicio-error" style="display: none;"></p>
+
+                <button type="submit" class="btn btn-primary btn-inicio" id="btnSetup" style="width: 100%;">
+                    <span id="btnSetupTexto">Crear cuenta de administrador</span>
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Notificaciones automaticas: se cierran solas a los 4 segundos sin boton;
+        // los dialogos de confirmacion (showCancelButton) conservan sus botones
+        (function() {
+            const swalOriginal = Swal.fire.bind(Swal);
+            Swal.fire = function(opciones) {
+                if (opciones && opciones.showCancelButton) {
+                    return swalOriginal(opciones);
+                }
+                return swalOriginal(Object.assign({ timer: 3000, timerProgressBar: true, showConfirmButton: false, position: 'top-end', customClass: { popup: 'swal-mini' } }, opciones));
+            };
+        })();
+
+        const $ = (id) => document.getElementById(id);
+        let needsSetup = false;
+
+        // Aviso de cierre de sesion (viene del panel via sessionStorage; fallback a localStorage legado)
+        const avisoSesion = sessionStorage.getItem('aviso_sesion') || localStorage.getItem('aviso_sesion');
+        if (avisoSesion) {
+            sessionStorage.removeItem('aviso_sesion');
+            localStorage.removeItem('aviso_sesion');
+            const aviso = $('avisoSesionInicio');
+            aviso.textContent = avisoSesion;
+            aviso.style.display = 'block';
+        }
+
+        // Validacion basica del formulario de setup
+        function validarSetup() {
+            const nombre = $('setupNombre').value.trim();
+            const cedula = $('setupCedula').value.trim();
+            const email = $('setupEmail').value.trim();
+            const username = $('setupUsername').value.trim();
+            const password = $('setupPassword').value;
+            const confirmar = $('setupConfirmar').value;
+
+            if (nombre.length < 3) return 'El nombre debe tener al menos 3 caracteres';
+            if (!/^\d+$/.test(cedula)) return 'La cedula debe contener solo numeros';
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'El correo no es valido';
+            if (!username) return 'El nombre de usuario es requerido';
+            if (password.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
+            if (password !== confirmar) return 'Las contraseñas no coinciden';
+            return null;
+        }
+
+        function mostrarErrorSetup(mensaje) {
+            const error = $('errorSetup');
+            error.textContent = mensaje;
+            error.style.display = 'block';
+        }
+
+        function ocultarErrorSetup() {
+            $('errorSetup').style.display = 'none';
+        }
+
+        // Guardar la sesion devuelta por el backend y entrar al panel
+        function entrarAlPanel(resultado, mensaje) {
+            // Limpiar campos de contraseña para que el navegador no ofrezca guardarlas
+            $('setupPassword').value = '';
+            $('setupConfirmar').value = '';
+
+            const datosSesion = Object.assign({}, resultado.usuario, {
+                sessionToken: resultado.sessionToken,
+                ip: resultado.ip,
+                fecha_ingreso: resultado.fecha_ingreso
+            });
+            sesion.guardar(datosSesion);
+            if (resultado.id_sesion) {
+                sessionStorage.setItem('id_sesion', resultado.id_sesion);
+            }
+
+            // Notificacion de bienvenida que avanza sola al panel tras ~3 segundos
+            Swal.fire({
+                title: 'Bienvenido',
+                text: mensaje,
+                icon: 'success',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = 'panel.html';
+            });
+        }
+
+        // Consultar el estado del sistema al cargar
+        async function iniciar() {
+            try {
+                const estado = await usuarioFrontend.obtenerSetupStatus();
+                needsSetup = estado.needsSetup === true;
+
+                if (needsSetup) {
+                    $('mensajeInicio').textContent = 'Ya casi logras iniciar. Antes debes registrarte como administrador del sistema.';
+                    $('btnSiguiente').style.display = 'inline-block';
+                } else {
+                    $('mensajeInicio').textContent = 'Ingresa con tu cuenta para continuar.';
+                    $('btnLogin').style.display = 'inline-block';
+                }
+            } catch (error) {
+                $('mensajeInicio').textContent = 'No se pudo conectar con el servidor. Verifica que este encendido e intenta de nuevo.';
+            }
+        }
+
+        // Ir a la vista de registro del administrador
+        $('btnSiguiente').addEventListener('click', () => {
+            if (!needsSetup) {
+                window.location.href = 'login.html';
+                return;
+            }
+            $('vistaInicio').style.display = 'none';
+            $('vistaSetup').style.display = 'block';
+            $('setupNombre').focus();
+        });
+
+        // Volver a la vista de inicio
+        $('btnVolverInicio').addEventListener('click', () => {
+            $('vistaSetup').style.display = 'none';
+            $('vistaInicio').style.display = 'block';
+        });
+
+        // Mostrar/ocultar contraseña del setup
+        $('mostrarSetupPassword').addEventListener('click', (e) => {
+            const input = $('setupPassword');
+            const visible = input.type === 'password';
+            input.type = visible ? 'text' : 'password';
+            e.currentTarget.querySelector('.ojo-ver').hidden = !visible;
+            e.currentTarget.querySelector('.ojo-ocultar').hidden = visible;
+            e.currentTarget.title = visible ? 'Ocultar contraseña' : 'Mostrar contraseña';
+        });
+
+        // Enviar el formulario de setup
+        $('formSetup').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            ocultarErrorSetup();
+
+            // Si el sistema ya fue configurado, no permitir el registro
+            if (!needsSetup) {
+                window.location.replace('index.html');
+                return;
+            }
+
+            const errorValidacion = validarSetup();
+            if (errorValidacion) {
+                mostrarErrorSetup(errorValidacion);
+                return;
+            }
+
+            const btn = $('btnSetup');
+            const btnTexto = $('btnSetupTexto');
+            btn.disabled = true;
+            btnTexto.textContent = 'Creando cuenta...';
+
+            try {
+                const resultado = await usuarioFrontend.setupAdmin({
+                    nombre: $('setupNombre').value.trim(),
+                    cedula: $('setupCedula').value.trim(),
+                    email: $('setupEmail').value.trim(),
+                    username: $('setupUsername').value.trim(),
+                    password: $('setupPassword').value
+                });
+
+                entrarAlPanel(resultado, `¡Bienvenido a 3D MIND, ${resultado.usuario.nombre}! Tu cuenta de administrador está lista.`);
+            } catch (error) {
+                btn.disabled = false;
+                btnTexto.textContent = 'Crear cuenta de administrador';
+                mostrarErrorSetup(error.mensaje || 'Error al crear la cuenta. Intenta de nuevo.');
+            }
+        });
+
+        iniciar();
+    </script>
+</body>
+</html>

@@ -2,24 +2,31 @@
 const express = require('express');
 const router = express.Router();
 const usuarioControlador = require('../controladores/UsuarioControlador');
+const verificarAdmin = require('../middleware/verificarAdmin');
+const verificarAdminOSelf = require('../middleware/verificarAdminOSelf');
+
+// Perfil del propio usuario autenticado (sin datos de otros usuarios)
+router.get('/perfil', usuarioControlador.obtenerPerfil);
 
 // Registrar nuevo usuario
-router.post('/registrar', usuarioControlador.registrar);
+router.post('/registrar', verificarAdmin, usuarioControlador.registrar);
 
 // Obtener todos los usuarios
-router.get('/obtener', usuarioControlador.obtenerTodos);
+router.get('/obtener', verificarAdmin, usuarioControlador.obtenerTodos);
 
 // Buscar usuarios
-router.get('/buscar', usuarioControlador.buscar);
+router.get('/buscar', verificarAdmin, usuarioControlador.buscar);
 
-// Actualizar usuario
-router.put('/actualizar/:id', usuarioControlador.actualizar);
+// Actualizar usuario (admin o el propio usuario)
+router.put('/actualizar/:id', verificarAdminOSelf, usuarioControlador.actualizar);
 
 // Desbloquear usuario
-router.put('/desbloquear/:id', usuarioControlador.desbloquear);
+router.put('/bloquear/:id', verificarAdmin, usuarioControlador.bloquear);
+
+router.put('/desbloquear/:id', verificarAdmin, usuarioControlador.desbloquear);
 
 // Eliminar usuario
-router.delete('/eliminar/:id', usuarioControlador.eliminar);
+router.delete('/eliminar/:id', verificarAdmin, usuarioControlador.eliminar);
 
 // Iniciar sesion
 router.post('/login', usuarioControlador.iniciarSesion);
