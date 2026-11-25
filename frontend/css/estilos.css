@@ -215,6 +215,37 @@ table tr:hover {
     align-items: center;
 }
 
+/* Pestañas internas del módulo Usuarios */
+.pestanas-usuarios {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 18px;
+}
+
+.pestana {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.pestana:hover {
+    color: #1e293b;
+}
+
+.pestana.activa {
+    color: #272a33;
+    font-weight: 600;
+    border-bottom-color: #272a33;
+}
+
 /* Estado (pildoras semanticas) */
 .estado-activo {
     background-color: #dcfce7;

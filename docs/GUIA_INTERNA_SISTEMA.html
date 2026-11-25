@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Interna del Sistema - 3D MIND</title>
+<script>
+// Aplicar el tema guardado antes de renderizar para evitar destello
+document.documentElement.dataset.theme = localStorage.getItem('guia_theme') || 'dark';
+</script>
+<link rel="icon" type="image/png" href="../frontend/img/icon-192.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+<style>
+:root {
+    --carbon: #14141a;
+    --carbon-2: #1b1b23;
+    --carbon-3: #23232e;
+    --silver: #c8c8d4;
+    --silver-dim: #8a8a9a;
+    --accent: #d4d4e0;
+    --accent-dim: #9a9ab0;
+    --green: #4ade80;
+    --blue: #7dd3fc;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --border: #2e2e3c;
+    --text-strong: #ffffff;
+    --strip: rgba(255,255,255,.015);
+    --code-bg: #0d0d12;
+}
+[data-theme="light"] {
+    --carbon: #f4f4f7;
+    --carbon-2: #ffffff;
+    --carbon-3: #ececf1;
+    --silver: #3c3c48;
+    --silver-dim: #6e6e7e;
+    --accent: #4a4a5e;
+    --accent-dim: #7a7a8c;
+    --green: #15803d;
+    --blue: #0369a1;
+    --amber: #b45309;
+    --red: #b91c1c;
+    --border: #dcdce6;
+    --text-strong: #1a1a22;
+    --strip: rgba(0,0,0,.025);
+    --code-bg: #1e1e28;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--carbon);
+    color: var(--silver);
+    line-height: 1.65;
+}
+
+/* ===== Layout ===== */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    background: var(--carbon-2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 24px 0;
+    z-index: 100;
+}
+.sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+}
+.sidebar-logo h1 {
+    font-size: 17px;
+    color: var(--text-strong);
+    letter-spacing: 1px;
+}
+.sidebar-logo p {
+    font-size: 11px;
+    color: var(--silver-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 4px;
+}
+.sidebar nav a {
+    display: block;
+    padding: 8px 20px;
+    color: var(--silver-dim);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+}
+.sidebar nav a:hover { color: var(--silver); background: var(--carbon-3); }
+.sidebar nav a.activo {
+    color: var(--text-strong);
+    border-left-color: var(--accent);
+    background: var(--carbon-3);
+}
+.sidebar nav .sub { padding-left: 34px; font-size: 12px; }
+
+.content {
+    margin-left: 280px;
+    flex: 1;
+    max-width: 980px;
+    padding: 40px 48px 100px;
+}
+
+/* ===== Hero ===== */
+.hero {
+    background: linear-gradient(135deg, var(--carbon-2), var(--carbon-3));
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 44px 40px;
+    margin-bottom: 48px;
+    text-align: center;
+}
+.hero img { width: 90px; margin-bottom: 16px; }
+.hero h2 { font-size: 30px; color: var(--text-strong); letter-spacing: 2px; margin-bottom: 8px; }
+.hero p { color: var(--silver-dim); font-size: 15px; max-width: 620px; margin: 0 auto; }
+.hero .tag {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 4px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--silver-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ===== Sections ===== */
+section { margin-bottom: 56px; scroll-margin-top: 24px; }
+h2.sec {
+    font-size: 22px;
+    color: var(--text-strong);
+    margin-bottom: 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+h2.sec .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    background: var(--carbon-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+h3 { font-size: 17px; color: var(--accent); margin: 28px 0 10px; }
+h4 { font-size: 15px; color: var(--silver); margin: 20px 0 8px; }
+p { margin-bottom: 12px; font-size: 14.5px; }
+a { color: var(--blue); }
+
+/* ===== Components ===== */
+.aviso {
+    border-left: 4px solid var(--amber);
+    background: rgba(251,191,36,.06);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 14px;
+}
+.aviso.azul { border-color: var(--blue); background: rgba(125,211,252,.06); }
+.aviso.verde { border-color: var(--green); background: rgba(74,222,128,.06); }
+.aviso.rojo { border-color: var(--red); background: rgba(248,113,113,.06); }
+.aviso strong { color: var(--text-strong); }
+
+.flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+.flow .paso {
+    flex: 1;
+    min-width: 140px;
+    background: var(--carbon-3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+    position: relative;
+}
+.flow .paso + .paso { margin-left: 26px; }
+.flow .paso + .paso::before {
+    content: '→';
+    position: absolute;
+    left: -22px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent-dim);
+    font-size: 18px;
+}
+.flow .paso .ico { font-size: 22px; margin-bottom: 6px; }
+.flow .paso .nom { font-weight: 600; color: var(--text-strong); font-size: 13px; }
+.flow .paso .desc { font-size: 11.5px; color: var(--silver-dim); margin-top: 4px; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 13.5px;
+}
+th {
+    background: var(--carbon-3);
+    color: var(--text-strong);
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+td {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+}
+tr:nth-child(even) td { background: var(--strip); }
+code.inline {
+    background: var(--carbon-3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12.5px;
+    color: var(--accent);
+}
+td code.inline { white-space: nowrap; }
+
+pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    font-size: 13px;
+    line-height: 1.55;
+}
+pre code { font-family: 'Consolas', 'Courier New', monospace; }
+
+.badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .3px;
+}
+.badge.admin { background: rgba(125,211,252,.15); color: var(--blue); border: 1px solid rgba(125,211,252,.3); }
+.badge.pub { background: rgba(74,222,128,.12); color: var(--green); border: 1px solid rgba(74,222,128,.3); }
+.badge.sesion { background: rgba(124,92,255,.12); color: #7c4dff; border: 1px solid rgba(124,92,255,.3); }
+[data-theme="light"] .badge.admin { background: rgba(3,105,161,.1); }
+[data-theme="light"] .badge.pub { background: rgba(21,128,61,.1); }
+[data-theme="light"] .badge.sesion { background: rgba(124,92,255,.1); }
+[data-theme="light"] .badge.self { background: rgba(180,83,9,.1); }
+[data-theme="light"] .badge.admin, [data-theme="light"] .badge.pub, [data-theme="light"] .badge.sesion, [data-theme="light"] .badge.self { border-color: currentColor; }
+.badge.self { background: rgba(251,191,36,.12); color: var(--amber); border: 1px solid rgba(251,191,36,.3); }
+
+details {
+    background: var(--carbon-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+details summary {
+    padding: 12px 18px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-strong);
+    font-size: 14px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+}
+details summary::before {
+    content: '▸';
+    color: var(--accent-dim);
+    transition: transform .2s;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details summary:hover { background: var(--carbon-3); }
+details .body { padding: 4px 18px 16px; }
+
+.arch-box {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr 60px 1fr;
+    gap: 0;
+    align-items: center;
+    margin: 24px 0;
+}
+.arch-item {
+    background: var(--carbon-3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+}
+.arch-item .t { font-weight: 700; color: var(--text-strong); font-size: 14px; margin-bottom: 6px; }
+.arch-item .d { font-size: 12px; color: var(--silver-dim); }
+.arch-arrow { text-align: center; font-size: 24px; color: var(--accent-dim); }
+
+ul.clean { margin: 8px 0 16px 22px; font-size: 14px; }
+ul.clean li { margin-bottom: 6px; }
+ol.clean { margin: 8px 0 16px 22px; font-size: 14px; }
+ol.clean li { margin-bottom: 6px; }
+
+.metodo {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 12px 0;
+    overflow: hidden;
+}
+.metodo summary {
+    background: var(--carbon-3);
+    padding: 10px 16px;
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+    color: var(--accent);
+}
+.metodo summary:hover { background: var(--carbon-2); border-color: var(--border); }
+.metodo .body { padding: 12px 18px; font-size: 13.5px; }
+.metodo .body p { margin-bottom: 8px; }
+
+/* ===== Botón de tema ===== */
+#btnTema {
+    position: fixed;
+    top: 18px;
+    right: 22px;
+    z-index: 200;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--carbon-2);
+    color: var(--silver);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,.25);
+    transition: transform .15s, color .15s;
+}
+#btnTema:hover { transform: scale(1.08); color: var(--text-strong); }
+#btnTema svg { width: 20px; height: 20px; }
+
+/* ===== Asistente de ayuda (solo preguntas frecuentes) ===== */
+#ayudaFab {
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    z-index: 200;
+    padding: 12px 20px;
+    border-radius: 28px;
+    border: none;
+    background: linear-gradient(135deg, #3a3a4e, #23232e);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35);
+    transition: transform .15s;
+}
+#ayudaFab:hover { transform: scale(1.05); }
+#ayudaFab svg { width: 20px; height: 20px; }
+#ayudaPanel {
+    position: fixed;
+    bottom: 90px;
+    right: 22px;
+    z-index: 200;
+    width: 380px;
+    max-width: calc(100vw - 44px);
+    height: 520px;
+    max-height: calc(100vh - 120px);
+    background: var(--carbon-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.4);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+#ayudaPanel.abierto { display: flex; }
+.ayuda-header {
+    padding: 14px 16px;
+    background: var(--carbon-3);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ayuda-header .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4a4a5e, #2e2e3c);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 13px;
+}
+.ayuda-header .info { flex: 1; }
+.ayuda-header .info .nom { font-weight: 600; color: var(--text-strong); font-size: 14px; }
+.ayuda-header .info .est { font-size: 11px; color: var(--silver-dim); }
+.ayuda-header button {
+    background: none; border: none; color: var(--silver-dim);
+    cursor: pointer; font-size: 18px; padding: 4px;
+}
+.ayuda-header button:hover { color: var(--text-strong); }
+#ayudaMensajes {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.msg {
+    max-width: 88%;
+    padding: 10px 13px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.msg.bot {
+    background: var(--carbon-3);
+    color: var(--silver);
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+}
+.msg.user {
+    background: linear-gradient(135deg, #4a4a5e, #3a3a4e);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+}
+.msg .fuente {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--silver-dim);
+    font-style: italic;
+}
+.msg .relacionadas { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+.msg .relacionadas button {
+    text-align: left;
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--carbon);
+    color: var(--silver-dim);
+    cursor: pointer;
+}
+.msg .relacionadas button:hover { color: var(--text-strong); border-color: var(--accent-dim); }
+#ayudaForm {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    background: var(--carbon-3);
+}
+#ayudaInput {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--carbon);
+    color: var(--silver);
+    font-size: 13.5px;
+    outline: none;
+}
+#ayudaInput:focus { border-color: var(--accent-dim); }
+#ayudaEnviar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: var(--carbon);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+#ayudaEnviar:hover { filter: brightness(1.1); }
+#ayudaEnviar svg { width: 18px; height: 18px; }
+.ayuda-sugerencias {
+    padding: 10px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+}
+.ayuda-sugerencias button {
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--carbon);
+    color: var(--silver-dim);
+    cursor: pointer;
+}
+.ayuda-sugerencias button:hover { color: var(--text-strong); border-color: var(--accent-dim); }
+
+@media (max-width: 900px) {
+    .sidebar { display: none; }
+    .content { margin-left: 0; padding: 24px 20px 80px; }
+    .flow .paso + .paso { margin-left: 10px; }
+}
+</style>
+</head>
+<body>
+<button id="btnTema" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro">
+    <svg class="icono-luna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    <svg class="icono-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+</button>
+<div class="layout">
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <h1>3D MIND</h1>
+        <p>Guía Interna del Sistema</p>
+    </div>
+    <nav id="nav">
+        <a href="#s1">1. La idea general</a>
+        <a href="#s2">2. Cómo se conectan las piezas</a>
+        <a href="#s3">3. Arranque y archivos base</a>
+        <a href="#s4" class="sub">4.1 server.js</a>
+        <a href="#s5" class="sub">4.2 basedatos.js</a>
+        <a href="#s6">5. Modelos (MySQL)</a>
+        <a href="#s7">6. Controladores</a>
+        <a href="#s8">7. Middlewares</a>
+        <a href="#s9">8. Rutas y API</a>
+        <a href="#s10">9. Frontend: app.js</a>
+        <a href="#s11">10. Las 3 páginas</a>
+        <a href="#s12">11. Base de datos</a>
+        <a href="#s13">12. Flujos completos</a>
+        <a href="#s14">13. Qué es cada archivo</a>
+        <a href="#s15">14. Glosario y preguntas</a>
+    </nav>
+</aside>
+
+<main class="content">
+
+<div class="hero">
+    <img src="../frontend/img/logo.png" alt="3D MIND">
+    <h2>GUÍA INTERNA DEL SISTEMA</h2>
+    <p>Cómo funciona 3D MIND por dentro: cada archivo, cada clase, cada método y cómo se conectan
+       el navegador, el servidor y la base de datos. Para estudio del equipo - no es documento de entrega.</p>
+    <span class="tag">Proyecto 3D MIND · SENA · Uso interno</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+    <h2 class="sec"><span class="num">1</span> La idea general</h2>
+    <p>El sistema es una <strong>aplicación web de tres pisos</strong>. Cada piso tiene un trabajo
+       distinto y solo habla con el de al lado:</p>
+
+    <div class="arch-box">
+        <div class="arch-item">
+            <div class="t">NAVEGADOR</div>
+            <div class="d">Frontend: HTML + CSS + JavaScript<br>3 páginas (index, login, panel)</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-item">
+            <div class="t">SERVIDOR NODE.JS</div>
+            <div class="d">Backend: Express<br>API REST en el puerto 3000</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-item">
+            <div class="t">MYSQL (XAMPP)</div>
+            <div class="d">Base de datos<br>proyecto_3d_mind, puerto 3306</div>
+        </div>
+    </div>
+
+    <div class="aviso azul"><strong>La regla de oro:</strong> el navegador NUNCA habla directo con MySQL.
+    Las páginas solo piden datos al servidor (API); el servidor es el único que consulta la base de datos.
+    Así las contraseñas y la estructura de la BD nunca quedan expuestas al cliente.</div>
+
+    <h3>Las capas del backend</h3>
+    <p>Dentro del servidor, cada carpeta tiene una responsabilidad única. Cuando llega una petición,
+       el camino es siempre el mismo:</p>
+
+    <div class="flow">
+        <div class="paso"><div class="ico">🌐</div><div class="nom">Petición HTTP</div><div class="desc">El navegador pide algo (login, listar usuarios...)</div></div>
+        <div class="paso"><div class="ico">🛤️</div><div class="nom">Ruta</div><div class="desc">Decide qué función atiende esa URL</div></div>
+        <div class="paso"><div class="ico">🛡️</div><div class="nom">Middleware</div><div class="desc">Filtro de seguridad: ¿tiene permiso?</div></div>
+        <div class="paso"><div class="ico">⚙️</div><div class="nom">Controlador</div><div class="desc">La lógica: valida, decide, responde</div></div>
+        <div class="paso"><div class="ico">🗄️</div><div class="nom">Modelo → MySQL</div><div class="desc">La consulta SQL y los datos</div></div>
+    </div>
+
+    <table>
+        <tr><th>Capa</th><th>Carpeta</th><th>Qué hace</th><th>Qué NO hace</th></tr>
+        <tr><td>Rutas</td><td><code class="inline">backend/rutas/</code></td><td>Define qué endpoint existe y a qué función llamar</td><td>No tiene lógica de negocio</td></tr>
+        <tr><td>Middleware</td><td><code class="inline">backend/middleware/</code></td><td>Filtros que corren ANTES del controlador</td><td>No procesa datos</td></tr>
+        <tr><td>Controladores</td><td><code class="inline">backend/controladores/</code></td><td>Validar entradas, llamar al modelo, responder JSON</td><td>No escribe SQL</td></tr>
+        <tr><td>Modelos</td><td><code class="inline">backend/modelos/</code></td><td>Las consultas SQL a MySQL</td><td>No sabe nada de HTTP</td></tr>
+        <tr><td>Configuración</td><td><code class="inline">backend/configuracion/</code></td><td>La conexión a la base de datos</td><td>-</td></tr>
+    </table>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+    <h2 class="sec"><span class="num">2</span> Cómo se conectan las piezas</h2>
+
+    <h3>Frontend ↔ Backend (la API)</h3>
+    <p>Una <strong>API</strong> (Application Programming Interface) es un conjunto de "endpoints":
+       URLs del servidor que aceptan peticiones y devuelven datos en formato <strong>JSON</strong>.</p>
+    <ul class="clean">
+        <li>El frontend usa <code class="inline">fetch()</code> de JavaScript para llamar a esas URLs.</li>
+        <li>Cada endpoint tiene un <strong>método HTTP</strong>: GET (leer), POST (crear/enviar), PUT (actualizar), DELETE (borrar).</li>
+        <li>Las peticiones llevan datos en el <strong>body</strong> (JSON) y el servidor responde con un <strong>código de estado</strong>: 200 ok, 400 datos inválidos, 403 sin permiso, 404 no existe, 500 error del servidor.</li>
+        <li>El frontend siempre envía el header <code class="inline">x-id-usuario</code> con el id del usuario en sesión; el backend lo usa para saber QUIÉN pide y si tiene permiso.</li>
+    </ul>
+
+    <h3>Backend ↔ Base de datos</h3>
+    <p>El backend usa la librería <code class="inline">mysql2</code>. La clase <code class="inline">BaseDatos</code>
+       mantiene un <strong>pool de conexiones</strong>: en vez de abrir y cerrar conexión en cada consulta
+       (lento), mantiene varias abiertas y las presta/reutiliza. Los modelos hacen:
+       <code class="inline">obtenerConexion()</code> → consulta → <code class="inline">release()</code>.</p>
+
+    <h3>Ejemplo real: qué pasa cuando alguien hace login</h3>
+    <p>Siguiendo una petición de punta a punta:</p>
+    <pre><code class="language-javascript">// 1. FRONTEND (login.html): el usuario escribe usuario y clave y envía el form
+const resultado = await usuarioFrontend.iniciarSesion(username, password);
+//    -> app.js -> fetch POST http://localhost:3000/api/usuarios/login
+//       body: { username, password, ip }
+//       header: Content-Type: application/json, x-id-usuario (si hay sesión)
+
+// 2. RUTA (rutas/usuarioRutas.js): POST /login no tiene middleware
+router.post('/login', usuarioControlador.iniciarSesion);
+
+// 3. CONTROLADOR (UsuarioControlador.iniciarSesion):
+//    - valida campos, busca el usuario con el modelo
+//    - bcrypt.compare(password, usuario.password) compara la clave con el hash
+//    - si falla: incrementa intentos, a los 5 bloquea
+//    - si acierta: genera sessionToken, registra en historial_acceso,
+//      responde JSON { sessionToken, usuario: {...}, id_sesion, ... }
+
+// 4. MODELO (Usuario.buscarPorUsername):
+//    SELECT u.*, r.nombre_rol FROM usuario u
+//    LEFT JOIN rol r ON u.id_rol_FK = r.id_rol WHERE u.username = ?
+//    -> devuelve la fila (o null)
+
+// 5. El frontend recibe el JSON, guarda la sesión en sessionStorage
+//    y redirige a panel.html</code></pre>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+    <h2 class="sec"><span class="num">3</span> Arranque y archivos base</h2>
+
+    <h3>Cómo se ejecuta el proyecto</h3>
+    <ol class="clean">
+        <li>Encender <strong>MySQL en XAMPP</strong> (puerto 3306).</li>
+        <li>La primera vez: <code class="inline">npm install</code> en la raíz (instala las librerías de <code class="inline">package.json</code> en <code class="inline">node_modules/</code>).</li>
+        <li>Copiar <code class="inline">backend/.env.example</code> como <code class="inline">backend/.env</code> y ajustar la contraseña de MySQL si tiene una.</li>
+        <li>Ejecutar <code class="inline">npm start</code> (equivale a <code class="inline">node backend/server.js</code>).</li>
+        <li>Abrir <code class="inline">http://localhost:3000</code> → la primera vez pide crear el administrador (setup).</li>
+    </ol>
+
+    <h3>Las variables del <code class="inline">.env</code></h3>
+    <p>El archivo <code class="inline">backend/.env</code> guarda la configuración sensible (nunca se sube a Git):</p>
+    <pre><code class="language-bash">DB_HOST=127.0.0.1      # servidor MySQL
+DB_PORT=3306          # puerto de MySQL (XAMPP)
+DB_USER=root          # usuario de MySQL
+DB_PASSWORD=          # contraseña de MySQL
+DB_NAME=proyecto_3d_mind  # nombre de la base de datos
+PORT=3000             # puerto del servidor Node</code></pre>
+    <p><code class="inline">basedatos.js</code> lee estas variables con <code class="inline">process.env</code>
+       y tiene valores por defecto si faltan. <code class="inline">server.js</code> lee <code class="inline">PORT</code>.</p>
+
+    <h3>Archivos de la raíz y para qué sirven</h3>
+    <table>
+        <tr><th>Archivo</th><th>Para qué sirve</th></tr>
+        <tr><td><code class="inline">package.json</code></td><td>Ficha del proyecto: nombre, versión, dependencias (<code class="inline">express</code>, <code class="inline">mysql2</code>, <code class="inline">bcryptjs</code>...) y el script <code class="inline">"start": "node backend/server.js"</code> que ejecuta <code class="inline">npm start</code>.</td></tr>
+        <tr><td><code class="inline">package-lock.json</code></td><td>Guarda las versiones EXACTAS instaladas de cada librería. Hace que <code class="inline">npm install</code> instale lo mismo en cualquier PC.</td></tr>
+        <tr><td><code class="inline">.gitignore</code></td><td>Le dice a Git qué NO subir al repositorio: <code class="inline">node_modules/</code> (se regenera con npm install), <code class="inline">.env</code> (secretos), logs, archivos de Windows/IDE. Protege las contraseñas.</td></tr>
+        <tr><td><code class="inline">README.md</code></td><td>Presentación del proyecto para quien lo visita en GitHub.</td></tr>
+        <tr><td><code class="inline">backend/reset_db.js</code></td><td>Script manual (<code class="inline">node backend/reset_db.js</code>) que VACÍA las tablas de datos y reinicia el contador, dejando el sistema listo para configurar un nuevo administrador. No toca los catálogos (roles, tipos de documento).</td></tr>
+        <tr><td><code class="inline">node_modules/</code></td><td>Las librerías que instaló npm. No se edita ni se sube a Git; se regenera con <code class="inline">npm install</code>.</td></tr>
+        <tr><td><code class="inline">docs/</code></td><td>Los manuales en PDF (usuario y técnico) para entrega.</td></tr>
+        <tr><td><code class="inline">database/</code></td><td>El esquema SQL (<code class="inline">proyecto_3d_mind.sql</code>), el modelo relacional en imagen y el archivo de MySQL Workbench.</td></tr>
+        <tr><td><code class="inline">.devin/rules/</code></td><td>Reglas del proyecto para quien trabaje con agentes de IA (protecciones, limpieza).</td></tr>
+    </table>
+</section>
+
+<!-- ============ 4.1 ============ -->
+<section id="s4">
+    <h2 class="sec"><span class="num">4.1</span> El arranque: <code class="inline">backend/server.js</code></h2>
+    <p>Es el punto de entrada de TODO el backend. Al ejecutar <code class="inline">node backend/server.js</code>
+       pasa esto en orden:</p>
+    <ol class="clean">
+        <li><strong>Carga el <code class="inline">.env</code></strong> con dotenv (las contraseñas de MySQL).</li>
+        <li><strong>Crea la clase <code class="inline">Servidor</code></strong>: su constructor crea la app de Express,
+            lee el puerto (3000 por defecto) y llama a <code class="inline">configurarMiddleware()</code> y
+            <code class="inline">configurarRutas()</code>.</li>
+        <li><strong><code class="inline">configurarMiddleware()</code></strong>:
+            <ul class="clean">
+                <li><code class="inline">cors()</code>: permite peticiones del frontend.</li>
+                <li><code class="inline">express.json()</code>: convierte el body de las peticiones a objetos JS.</li>
+                <li>Encabezados anti-caché (<code class="inline">no-store</code>): el navegador NO guarda respuestas,
+                    clave para que el botón "atrás" no muestre datos viejos.</li>
+                <li><code class="inline">express.static('../frontend')</code>: sirve los HTML/CSS/JS/img directo.</li>
+            </ul>
+        </li>
+        <li><strong><code class="inline">configurarRutas()</code></strong>: conecta cada prefijo del API con su archivo de rutas
+            (<code class="inline">/api/usuarios</code>, <code class="inline">/api/historial</code>, <code class="inline">/api/roles</code>,
+            <code class="inline">/api/tipos-documento</code>, <code class="inline">/api/auth</code>) y las páginas
+            (<code class="inline">/</code>, <code class="inline">/login.html</code>, <code class="inline">/panel.html</code>).</li>
+        <li><strong><code class="inline">inicializarDatos()</code></strong> (antes de abrir el puerto):
+            <ul class="clean">
+                <li>Si la tabla <code class="inline">rol</code> está vacía → inserta Administrador (id=1) y Operario de tienda (id=2).</li>
+                <li>Si <code class="inline">tipo_documento</code> está vacía → inserta CC, TI, CE.</li>
+                <li>Verifica que exista la columna <code class="inline">debe_cambiar_password</code>; si no, la crea con <code class="inline">ALTER TABLE</code> (migración automática).</li>
+                <li><strong>Nunca crea usuarios</strong>: el primer admin se crea por el flujo de setup.</li>
+            </ul>
+        </li>
+        <li><strong><code class="inline">iniciar()</code></strong>: llama a <code class="inline">inicializarDatos()</code> y luego
+            <code class="inline">app.listen(3000)</code>. El servidor queda escuchando en <code class="inline">http://localhost:3000</code>.</li>
+    </ol>
+    <div class="aviso"><strong>Detalle de Node:</strong> al final hace <code class="inline">module.exports = new Servidor()</code>
+    - exporta una <em>instancia ya creada</em>, no la clase. Los controladores hacen lo mismo.</div>
+</section>
+
+<!-- ============ 4.2 ============ -->
+<section id="s5">
+    <h2 class="sec"><span class="num">4.2</span> La conexión: <code class="inline">backend/configuracion/basedatos.js</code></h2>
+    <p>La clase <code class="inline">BaseDatos</code> es lo más simple del proyecto:</p>
+    <ul class="clean">
+        <li><strong>Constructor</strong>: arma la configuración leyendo <code class="inline">process.env.DB_*</code>
+            (con valores por defecto: host 127.0.0.1, puerto 3306, usuario root, base <code class="inline">proyecto_3d_mind</code>)
+            y crea el pool con <code class="inline">mysql.createPool(config)</code>.</li>
+        <li><strong><code class="inline">obtenerConexion()</code></strong>: pide una conexión prestada del pool.</li>
+        <li><strong><code class="inline">cerrarPool()</code></strong>: cierra todo (casi nunca se usa).</li>
+    </ul>
+    <p><strong>¿Qué es un pool?</strong> En vez de abrir y cerrar una conexión TCP a MySQL en cada consulta
+       (muy lento), mysql2 mantiene un grupo de conexiones abiertas y las presta y reutiliza.
+       Cada modelo sigue el patrón: pedir → consultar → <code class="inline">release()</code> (devolver).</p>
+    <p>Al final exporta <code class="inline">new BaseDatos()</code>: los modelos hacen
+       <code class="inline">const bd = require('../configuracion/basedatos')</code> y comparten la misma instancia.</p>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s6">
+    <h2 class="sec"><span class="num">5</span> Los modelos (la capa que habla con MySQL)</h2>
+    <p>Un modelo = una clase que representa una tabla de la base de datos. Cada método hace
+       <strong>una operación SQL</strong> y devuelve filas (arrays de objetos). El patrón es siempre:</p>
+    <pre><code class="language-javascript">const conexion = await bd.obtenerConexion();
+const [filas] = await conexion.query('SELECT ... WHERE x = ?', [valor]);
+conexion.release();
+return filas;</code></pre>
+    <p>El <code class="inline">?</code> es un <strong>parámetro seguro</strong>: mysql2 lo reemplaza internamente
+       y evita la inyección SQL (que alguien manipule la consulta escribiendo código en un campo).</p>
+
+    <h3>5.1 <code class="inline">modelos/Usuario.js</code> - la clase más grande</h3>
+    <p>El constructor copia cada campo de <code class="inline">datos</code> a <code class="inline">this</code>
+       (id_usuario, cedula, nombre, email, username, password, estado, int_fallidos,
+       debe_cambiar_password, id_rol_FK, id_tipo_doc_FK). Los métodos:</p>
+
+    <details class="metodo"><summary>crear()</summary><div class="body">
+        <p><strong>INSERT</strong> de usuario nuevo. Antes cifra la contraseña con <code class="inline">bcrypt.hash(password, 10)</code>
+        (el 10 es el "costo": más alto = más seguro y más lento). Devuelve el id creado.</p></div></details>
+    <details class="metodo"><summary>buscarPorUsername(username)</summary><div class="body">
+        <p><strong>SELECT</strong> de UN usuario por username, con JOIN a <code class="inline">rol</code> para traer
+        <code class="inline">nombre_rol</code> en la misma consulta. Devuelve la fila o <code class="inline">null</code>. Es la que usa el login.</p></div></details>
+    <details class="metodo"><summary>verificarDuplicados(cedula, email, username)</summary><div class="body">
+        <p><strong>SELECT</strong> que busca filas que coincidan con CUALQUIERA de los tres valores.
+        La usa el registro para rechazar duplicados.</p></div></details>
+    <details class="metodo"><summary>verificarDuplicadosExcluyendo(id, ...)</summary><div class="body">
+        <p>Igual pero con <code class="inline">AND id_usuario != ?</code> - para que al editar un usuario
+        no se confunda consigo mismo.</p></div></details>
+    <details class="metodo"><summary>obtenerTodos()</summary><div class="body">
+        <p><strong>SELECT</strong> de todos los usuarios que NO estén "Eliminado", con JOINs a rol y tipo_documento
+        para traer nombres legibles. Si el JOIN falla, reintenta con un SELECT simple (plan B defensivo).</p></div></details>
+    <details class="metodo"><summary>obtenerPorId(id)</summary><div class="body">
+        <p><strong>SELECT</strong> de un usuario por id. Devuelve la fila o null.</p></div></details>
+    <details class="metodo"><summary>actualizar(id, datos)</summary><div class="body">
+        <p><strong>UPDATE</strong> dinámico: siempre actualiza nombre/cedula/email/username/rol/tipo_doc;
+        solo agrega <code class="inline">password</code> si viene con valor (y la cifra con bcrypt aquí mismo).
+        Devuelve true si cambió algo.</p></div></details>
+    <details class="metodo"><summary>incrementarIntentosFallidos(id) / reiniciarIntentos(id)</summary><div class="body">
+        <p><strong>UPDATE</strong> de <code class="inline">int_fallidos</code>: +1 en un caso, =0 en el otro.</p></div></details>
+    <details class="metodo"><summary>bloquear(id) / desbloquear(id)</summary><div class="body">
+        <p><strong>UPDATE</strong> del estado. Bloquear solo si estaba 'Activo'; desbloquear solo si estaba
+        'Bloqueado' (y resetea int_fallidos a 0). Devuelven cuántas filas cambiaron - si da 0,
+        el estado no permitía la operación.</p></div></details>
+    <details class="metodo"><summary>eliminar(id)</summary><div class="body">
+        <p><strong>UPDATE</strong> estado='Eliminado'. Es <strong>eliminación lógica</strong>: el registro sigue
+        en la BD pero se oculta de las consultas. Nunca se borra físicamente.</p></div></details>
+    <details class="metodo"><summary>cambiarPassword(id, passwordEncriptada)</summary><div class="body">
+        <p><strong>UPDATE</strong> de la contraseña YA cifrada + pone <code class="inline">debe_cambiar_password = 0</code>.</p></div></details>
+    <details class="metodo"><summary>contarNoEliminados()</summary><div class="body">
+        <p><strong>SELECT COUNT</strong> de usuarios no eliminados. Devuelve 0 solo cuando el sistema está
+        "virgen". La usa el setup inicial y setup-status.</p></div></details>
+
+    <h3>5.2 <code class="inline">modelos/HistorialAcceso.js</code></h3>
+    <p>Registra cada inicio/cierre de sesión (auditoría):</p>
+    <ul class="clean">
+        <li><code class="inline">crear(idUsuario, ip)</code>: INSERT con fecha actual, IP y usuario. Devuelve el id del registro (se usa para marcar la salida).</li>
+        <li><code class="inline">actualizarSalida(idSesion)</code>: UPDATE pone <code class="inline">fecha_salida = ahora</code>.</li>
+        <li><code class="inline">obtenerTodos()</code>: SELECT de todo el historial con JOIN a usuario (nombre/username), del más reciente al más viejo.</li>
+    </ul>
+
+    <h3>5.3 <code class="inline">modelos/Rol.js</code> y <code class="inline">modelos/TipoDocumento.js</code></h3>
+    <p>Catálogos simples con tres métodos cada uno:</p>
+    <ul class="clean">
+        <li><code class="inline">obtenerTodos()</code>: SELECT de toda la tabla (alimenta los selects del formulario).</li>
+        <li><code class="inline">hayRoles()</code> / <code class="inline">hayTipos()</code>: SELECT COUNT para saber si la tabla tiene datos.</li>
+        <li><code class="inline">insertarBasicos()</code>: inserta los valores por defecto (2 roles / CC, TI, CE). Solo los usa <code class="inline">server.js</code> al arrancar.</li>
+    </ul>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s7">
+    <h2 class="sec"><span class="num">6</span> Los controladores (la lógica de negocio)</h2>
+    <p>El controlador recibe <code class="inline">req</code> (la petición: body, params, headers) y
+       <code class="inline">res</code> (la respuesta). Su trabajo: validar entradas, llamar al modelo
+       y devolver JSON con código HTTP (200 ok, 400 datos malos, 403 sin permiso, 404 no existe, 500 error).</p>
+
+    <h3>6.1 <code class="inline">controladores/UsuarioControlador.js</code> - el más importante</h3>
+
+    <div class="aviso azul">Arriba del archivo hay una <strong>lista en memoria</strong>:
+    <pre><code class="language-javascript">const sesionesActivas = new Map();</code></pre>
+    Guarda <code class="inline">token -> {id_usuario, fecha}</code> de cada sesión iniciada.
+    El token es aleatorio de 64 caracteres (<code class="inline">crypto.randomBytes(32)</code>).
+    <strong>Se pierde al reiniciar el servidor</strong> (las sesiones no sobreviven reinicios).</div>
+
+    <p>El constructor hace <code class="inline">bind</code> de dos métodos porque Express los llama
+       sin contexto y <code class="inline">this</code> se perdería: <code class="inline">iniciarSesion</code>
+       y <code class="inline">setupAdmin</code>.</p>
+
+    <details class="metodo"><summary>registrar(req, res) - POST /api/usuarios/registrar (solo admin)</summary><div class="body">
+        <ol class="clean">
+            <li>Valida cada campo: nombre ≥3 caracteres, cédula solo números, email con formato válido, username presente, contraseña ≥6, tipo doc y rol seleccionados.</li>
+            <li>Llama <code class="inline">verificarDuplicados</code> y revisa fila por fila: cédula duplicada (no eliminada), email y username → rechaza con 400.</li>
+            <li>Crea el Usuario. <strong>Detalle clave:</strong> si el rol es 2 (Operario), marca <code class="inline">debe_cambiar_password = 1</code> - el operario DEBE cambiar su clave en el primer ingreso. El admin (rol 1) no.</li>
+            <li><code class="inline">crear()</code> lo guarda cifrado y responde "Usuario registrado con exito".</li>
+        </ol></div></details>
+
+    <details class="metodo"><summary>obtenerTodos(req, res) - GET /api/usuarios/obtener (solo admin)</summary><div class="body">
+        <p>Trae todos los usuarios, hace <code class="inline">delete u.password</code> en cada uno
+        (<strong>nunca se envía la contraseña ni siquiera cifrada al frontend</strong>) y responde el array.</p></div></details>
+
+    <details class="metodo"><summary>obtenerPerfil(req, res) - GET /api/usuarios/perfil</summary><div class="body">
+        <p>Lee el header <code class="inline">x-id-usuario</code>, busca ese usuario y devuelve sus datos sin password.
+        Es lo que usa el operario para ver/editar su propia ficha sin ver a los demás.</p></div></details>
+
+    <details class="metodo"><summary>actualizar(req, res) - PUT /api/usuarios/actualizar/:id</summary><div class="body">
+        <p>La lógica más delicada del sistema:</p>
+        <ol class="clean">
+            <li>Valida campos igual que registrar (la contraseña es opcional aquí).</li>
+            <li><code class="inline">verificarDuplicadosExcluyendo(id,...)</code> - mismo chequeo ignorando al propio usuario.</li>
+            <li><strong>Regla de autoedición:</strong> compara el <code class="inline">id</code> del endpoint con el header
+                <code class="inline">x-id-usuario</code>. Si son el mismo usuario Y su rol NO es admin, <strong>ignora todos
+                los campos que mandó el frontend</strong> y solo conserva la contraseña (un operario solo puede cambiar su clave).
+                Además le prohíbe poner la misma contraseña que ya tiene.</li>
+            <li>Si es admin editando a otro, sí se actualiza todo.</li>
+        </ol></div></details>
+
+    <details class="metodo"><summary>bloquear / desbloquear / eliminar</summary><div class="body">
+        <p>Wrappers simples sobre el modelo. Bloquear/desbloquear devuelven 400 si el estado actual no permite
+        la operación. Eliminar revisa que no sea auto-eliminación (id del path == id_usuario_sesion del body).</p></div></details>
+
+    <details class="metodo"><summary>cambiarPassword(req, res) - PUT /api/auth/cambiar-password</summary><div class="body">
+        <p>Lo usan el cambio obligatorio de primer ingreso Y el "modificar contraseña" del panel:</p>
+        <ol class="clean">
+            <li>Valida id, contraseña nueva ≥6 y que coincida la confirmación.</li>
+            <li><strong>Quién puede:</strong> el propio usuario con sesión, un admin (rol 1), o el flujo de
+                primer ingreso (<code class="inline">debe_cambiar_password = 1</code>, sin sesión aún).</li>
+            <li>Rechaza si la nueva es igual a la actual (<code class="inline">bcrypt.compare</code>).</li>
+            <li>Cifra con bcrypt y llama <code class="inline">modelo.cambiarPassword</code> (apaga la bandera).</li>
+        </ol></div></details>
+
+    <details class="metodo"><summary>verificarAdminPassword(req, res) - POST /api/auth/verificar-admin</summary><div class="body">
+        <p>Recibe <code class="inline">{id_usuario, password}</code> y responde <code class="inline">{autorizado: true}</code>
+        si la clave coincide. Es la "doble verificación" del frontend.</p>
+        <p><strong>Devuelve 403 y no 401 a propósito:</strong> <code class="inline">app.js</code> trata cualquier 401 como
+        "sesión inválida" y cerraría la sesión - una clave mal tipeada en la verificación tumbaría todo el panel.</p>
+        <p>Acepta cualquier usuario activo, no solo admin (sirve también para la reautenticación por inactividad del operario).</p></div></details>
+
+    <details class="metodo"><summary>logout(req, res) - POST /api/auth/logout</summary><div class="body">
+        <p>Recibe el <code class="inline">sessionToken</code> y lo borra del Map <code class="inline">sesionesActivas</code>.
+        También se usa con <code class="inline">navigator.sendBeacon</code> al cerrar la pestaña.</p></div></details>
+
+    <details class="metodo"><summary>iniciarSesion(req, res) - POST /api/usuarios/login</summary><div class="body">
+        <p><strong>El corazón del login:</strong></p>
+        <ol class="clean">
+            <li>Valida que vengan username y password.</li>
+            <li><code class="inline">buscarPorUsername</code> → si no existe, 404.</li>
+            <li>Si está 'Eliminado' → 403. Si está 'Bloqueado' → 403 con mensaje según int_fallidos.</li>
+            <li><code class="inline">bcrypt.compare(password, usuario.password)</code> compara el texto plano con el hash guardado.</li>
+            <li><strong>Si falla:</strong> incrementa intentos; si llega a 5 → bloquea + "Usuario bloqueado por superar 5 intentos".
+                Si no → 401 "Le quedan N intentos".</li>
+            <li><strong>Si acierta:</strong> reinicia intentos a 0, calcula si debe cambiar contraseña, y llama <code class="inline">responderSesionExitosa</code>.</li>
+        </ol></div></details>
+
+    <details class="metodo"><summary>responderSesionExitosa(req, res, usuario, requiereCambio)</summary><div class="body">
+        <p>La usan tanto el login como el setup-admin:</p>
+        <ol class="clean">
+            <li>Normaliza la IP (<code class="inline">::1</code> y <code class="inline">::ffff:</code> → <code class="inline">127.0.0.1</code>).</li>
+            <li><strong>Registra el ingreso en historial</strong> - si falla NO rompe el login (try/catch solo loguea).
+                Guarda el id_sesion del historial para que el frontend marque la salida después.</li>
+            <li>Genera <code class="inline">sessionToken</code> aleatorio y lo guarda en <code class="inline">sesionesActivas</code>.</li>
+            <li>Responde JSON con sessionToken, ip, fecha_ingreso, id_sesion y el objeto usuario
+                (id, nombre, username, id_rol, nombre_rol) - <strong>sin password</strong>.</li>
+        </ol></div></details>
+
+    <details class="metodo"><summary>setupStatus / setupAdmin</summary><div class="body">
+        <p><code class="inline">setupStatus</code> (GET /api/auth/setup-status): devuelve <code class="inline">{needsSetup: true}</code>
+        si no hay usuarios. Es lo primero que consulta index.html.</p>
+        <p><code class="inline">setupAdmin</code> (POST /api/auth/setup-admin): crea el PRIMER admin.
+        Si ya hay usuarios → 403 "El sistema ya fue configurado" (nadie puede reusarlo).
+        Crea con rol=1, sin cambio de clave obligatorio, y llama <code class="inline">responderSesionExitosa</code>:
+        <strong>el setup deja al admin LOGUEADO automáticamente</strong>.</p></div></details>
+
+    <h3>6.2 <code class="inline">controladores/HistorialControlador.js</code></h3>
+    <ul class="clean">
+        <li><code class="inline">registrarSalida(req, res)</code> - POST /api/historial/salida: recibe <code class="inline">id_sesion</code>
+            (el id del registro de historial, NO el token de sesión) y marca la fecha de salida.</li>
+        <li><code class="inline">obtenerTodos(req, res)</code> - GET /api/historial/obtener: devuelve todo el historial.
+            <span class="badge self">limitación</span> Esta ruta NO tiene middleware de admin - cualquier sesión activa puede leerla.</li>
+    </ul>
+
+    <h3>6.3 <code class="inline">controladores/RolControlador.js</code> y <code class="inline">TipoDocumentoControlador.js</code></h3>
+    <p>Un solo método cada uno (<code class="inline">obtenerTodos</code>): llaman al modelo y devuelven el array.
+       Solo sirven para llenar los <code class="inline">&lt;select&gt;</code> del formulario de usuarios.</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s8">
+    <h2 class="sec"><span class="num">7</span> Los middlewares (filtros de seguridad)</h2>
+    <p>Un middleware es una función que corre <strong>antes</strong> del controlador. Si no llama
+       <code class="inline">next()</code>, la petición se detiene ahí con un error.</p>
+
+    <h3><code class="inline">middleware/verificarAdmin.js</code></h3>
+    <p>Protege rutas de "solo administrador":</p>
+    <ol class="clean">
+        <li>Saca el id del usuario de donde sea: header <code class="inline">x-id-usuario</code>, query <code class="inline">?id_usuario</code> o body.</li>
+        <li>Si no hay id → 403 "se requiere una sesion activa".</li>
+        <li>Busca el usuario en la BD. Si no existe o <code class="inline">id_rol_FK !== 1</code> → 403.</li>
+        <li>Si todo bien → <code class="inline">next()</code> y sigue al controlador.</li>
+    </ol>
+
+    <h3><code class="inline">middleware/verificarAdminOSelf.js</code></h3>
+    <p>Más permisivo: deja pasar si es admin <strong>O si el usuario es él mismo</strong>
+       (<code class="inline">req.params.id</code> del endpoint == su propio id). Es para
+       <code class="inline">PUT /actualizar/:id</code>: el admin puede editar a cualquiera, el operario solo su ficha.</p>
+
+    <div class="aviso rojo"><strong>Punto débil a conocer:</strong> la "sesión" real es el header
+    <code class="inline">x-id-usuario</code> con el id en texto plano. El servidor confía en ese número - no hay token
+    firmado tipo JWT. El <code class="inline">sessionToken</code> existe en memoria pero los middlewares no lo verifican.
+    Es una decisión de diseño simple del proyecto formativo (limitación reconocida).</div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s9">
+    <h2 class="sec"><span class="num">8</span> Las rutas (el mapa del API)</h2>
+    <p>Los archivos de <code class="inline">backend/rutas/</code> solo conectan URL → middleware → método del controlador.</p>
+
+    <h3><code class="inline">rutas/usuarioRutas.js</code> (montado en /api/usuarios)</h3>
+    <table>
+        <tr><th>Método</th><th>Ruta completa</th><th>Middleware</th><th>Controlador</th></tr>
+        <tr><td>GET</td><td><code class="inline">/api/usuarios/perfil</code></td><td>-</td><td>obtenerPerfil</td></tr>
+        <tr><td>POST</td><td><code class="inline">/api/usuarios/registrar</code></td><td><span class="badge admin">verificarAdmin</span></td><td>registrar</td></tr>
+        <tr><td>GET</td><td><code class="inline">/api/usuarios/obtener</code></td><td><span class="badge admin">verificarAdmin</span></td><td>obtenerTodos</td></tr>
+        <tr><td>PUT</td><td><code class="inline">/api/usuarios/actualizar/:id</code></td><td><span class="badge self">verificarAdminOSelf</span></td><td>actualizar</td></tr>
+        <tr><td>PUT</td><td><code class="inline">/api/usuarios/bloquear/:id</code></td><td><span class="badge admin">verificarAdmin</span></td><td>bloquear</td></tr>
+        <tr><td>PUT</td><td><code class="inline">/api/usuarios/desbloquear/:id</code></td><td><span class="badge admin">verificarAdmin</span></td><td>desbloquear</td></tr>
+        <tr><td>DELETE</td><td><code class="inline">/api/usuarios/eliminar/:id</code></td><td><span class="badge admin">verificarAdmin</span></td><td>eliminar</td></tr>
+        <tr><td>POST</td><td><code class="inline">/api/usuarios/login</code></td><td>-</td><td>iniciarSesion</td></tr>
+    </table>
+
+    <h3><code class="inline">rutas/authRutas.js</code> (montado en /api/auth)</h3>
+    <table>
+        <tr><th>Método</th><th>Ruta</th><th>Controlador</th></tr>
+        <tr><td>GET</td><td><code class="inline">/api/auth/setup-status</code></td><td>setupStatus</td></tr>
+        <tr><td>POST</td><td><code class="inline">/api/auth/setup-admin</code></td><td>setupAdmin</td></tr>
+        <tr><td>PUT</td><td><code class="inline">/api/auth/cambiar-password</code></td><td>cambiarPassword</td></tr>
+        <tr><td>POST</td><td><code class="inline">/api/auth/verificar-admin</code></td><td>verificarAdminPassword</td></tr>
+        <tr><td>POST</td><td><code class="inline">/api/auth/logout</code></td><td>logout</td></tr>
+    </table>
+
+    <p>También existen <code class="inline">rutas/historialRutas.js</code> (/api/historial: POST /salida, GET /obtener),
+       <code class="inline">rutas/rolRutas.js</code> (/api/roles: GET /obtener) y
+       <code class="inline">rutas/tipoDocumentoRutas.js</code> (/api/tipos-documento: GET /obtener).</p>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="s10">
+    <h2 class="sec"><span class="num">9</span> El frontend: <code class="inline">frontend/js/app.js</code></h2>
+    <p>Es el "puente" entre las páginas y el API. Define clases que envuelven cada familia de endpoints.
+       Al final se crean <strong>instancias globales</strong> que cualquier página puede usar tras cargar el script.</p>
+
+    <h3>9.1 <code class="inline">class Aplicacion</code> - el que habla HTTP</h3>
+    <details class="metodo" open><summary>peticion(endpoint, metodo, datos) - EL método clave</summary><div class="body">
+        <ol class="clean">
+            <li>Arma las opciones del fetch: método, header <code class="inline">Content-Type: application/json</code>
+                y <strong><code class="inline">x-id-usuario</code> con el id del usuario en sesión</strong> (lo saca de <code class="inline">sesion.obtener()</code>).</li>
+            <li>Si hay datos, los convierte a JSON en el body.</li>
+            <li>Hace el <code class="inline">fetch</code> a <code class="inline">baseUrl + endpoint</code> (baseUrl = <code class="inline">http://localhost:3000/api</code>).</li>
+            <li><strong>Manejo de 401:</strong> si el servidor responde 401 y había sesión, cierra sesión, guarda el aviso
+                "La sesión se ha cerrado..." y redirige al login.</li>
+            <li>Parsea el JSON; si la respuesta no fue ok, lanza un Error con <code class="inline">error.mensaje</code>
+                (los controladores siempre devuelven <code class="inline">{mensaje: "..."}</code>).</li>
+        </ol></div></details>
+    <p><code class="inline">obtenerIP()</code>: consulta <code class="inline">api.ipify.org</code> para saber la IP pública
+       del cliente (se envía al login para el historial). Si falla (sin internet), devuelve <code class="inline">127.0.0.1</code>.</p>
+
+    <h3>9.2 Las clases "Frontend" (una por recurso)</h3>
+    <p><code class="inline">UsuarioFrontend</code>, <code class="inline">RolFrontend</code>,
+       <code class="inline">TipoDocumentoFrontend</code>, <code class="inline">HistorialFrontend</code>:
+       son envoltorios finos - cada método llama a <code class="inline">app.peticion(...)</code> con el endpoint correcto.
+       Ejemplos: <code class="inline">iniciarSesion</code> (primero obtiene la IP, luego POST /usuarios/login),
+       <code class="inline">obtenerTodos</code>, <code class="inline">actualizar(id, datos)</code>,
+       <code class="inline">eliminar(id, idSesion)</code>, <code class="inline">registrarSalida(idSesion)</code>.</p>
+
+    <h3>9.3 <code class="inline">class Sesion</code> - dónde vive la sesión</h3>
+    <ul class="clean">
+        <li>Clave <code class="inline">usuario_sesion</code> en <strong>sessionStorage</strong> (no localStorage): la sesión
+            <strong>muere al cerrar la pestaña</strong>. En el constructor borra cualquier rastro viejo en localStorage.</li>
+        <li><code class="inline">guardar(datos)</code>: guarda el JSON de la sesión (usuario + token + ip + fecha).</li>
+        <li><code class="inline">obtener()</code>: la lee y parsea; devuelve null si no hay.</li>
+        <li><code class="inline">cerrar()</code>: la borra. <code class="inline">estaActiva()</code>: el guardián de todas las páginas.</li>
+    </ul>
+    <p>Lo que se guarda (lo arma <code class="inline">guardarSesion</code> en login.html):
+       <code class="inline">{id_usuario, nombre, username, id_rol, nombre_rol, sessionToken, ip, fecha_ingreso}</code>.</p>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="s11">
+    <h2 class="sec"><span class="num">10</span> Las 3 páginas HTML</h2>
+
+    <h3>10.1 <code class="inline">index.html</code> - portada y setup inicial</h3>
+    <p>Al cargar ejecuta <code class="inline">iniciar()</code>: consulta <code class="inline">GET /api/auth/setup-status</code>.</p>
+    <ul class="clean">
+        <li>Si <code class="inline">needsSetup === true</code> (no hay usuarios): muestra "Antes debes registrarte como administrador"
+            + formulario con nombre, cédula, email, username, contraseña x2 → <code class="inline">setupAdmin()</code> →
+            el admin queda <strong>logueado automáticamente</strong> → panel.html.</li>
+        <li>Si ya hay usuarios: botón que va a login.html.</li>
+        <li>Si el servidor no responde: mensaje de error.</li>
+    </ul>
+
+    <h3>10.2 <code class="inline">login.html</code> - iniciar sesión</h3>
+    <p>Al cargar: muestra aviso si viene <code class="inline">aviso_sesion</code>; si ya hay sesión → directo al panel;
+       consulta setup-status y si needsSetup redirige a index.html.</p>
+    <p>Al enviar el formulario, <strong>tres resultados posibles</strong>:</p>
+    <ul class="clean">
+        <li><code class="inline">requiereCambioPassword === true</code>: abre el modal "Actualización obligatoria"
+            (nueva contraseña + confirmar) → <code class="inline">cambiarPassword</code> → entra al panel.</li>
+        <li>Login normal: <code class="inline">continuarAlPanel()</code> → guarda sesión + id_sesion del historial →
+            SweetAlert "Bienvenido" de 3s → panel.html.</li>
+        <li>Error: spinner fuera, animación shake del card, mensaje del backend
+            ("usuario no existe", "le quedan N intentos", etc.).</li>
+    </ul>
+    <p>El enlace "Olvidé mi contraseña" solo muestra un aviso: <em>contacte al administrador</em>.</p>
+
+    <h3>10.3 <code class="inline">panel.html</code> - el panel de trabajo</h3>
+    <p>Es una SPA (una sola página con "vistas" que se muestran/ocultan). Lo primero al cargar:
+       si <code class="inline">!sesion.estaActiva()</code> → login. Nadie entra sin sesión.</p>
+    <p><code class="inline">esAdmin = usuarioSesion.id_rol === 1</code> decide TODO lo visual:
+       si NO es admin se ocultan el menú "Usuarios" y su tarjeta, y la guía rápida cambia a
+       "¿Cómo modifico mi contraseña?".</p>
+
+    <h4>La doble verificación (la seguridad más visible)</h4>
+    <ul class="clean">
+        <li><code class="inline">solicitarVerificacionAdmin(texto, accion, forzar)</code>: si la verificación sigue vigente
+            (ventana de <strong>10 minutos</strong>) ejecuta la acción directo; si no, abre el modal pidiendo la contraseña.</li>
+        <li>El modal <strong>no tiene botón de validar</strong>: <code class="inline">validarVerificacion()</code> se dispara sola
+            500ms después de dejar de escribir (debounce) o con Enter → POST /auth/verificar-admin.
+            Si va bien: check verde ~300ms, cierra modal, marca 10 min más y ejecuta la acción pendiente.</li>
+        <li><strong>Cuándo se exige SIEMPRE (ignora los 10 min):</strong> bloquear, desbloquear, operario cambiando su contraseña.</li>
+        <li><strong>Cuándo usa la ventana de 10 min:</strong> entrar a Usuarios, nuevo, editar, eliminar.</li>
+    </ul>
+
+    <h4>Cierre de sesión e inactividad</h4>
+    <ul class="clean">
+        <li><strong>Manual:</strong> botón → <code class="inline">cerrarSesion()</code> → logout backend + salida en historial +
+            limpiar sessionStorage + avisar a otras pestañas + login.</li>
+        <li><strong>Inactividad:</strong> 5 minutos sin eventos (mousemove, keydown, click, scroll, touchstart) → a los 4.5 min
+            aviso en pantalla, a los 5 min modal de reautenticación OBLIGATORIO (sin X ni clic fuera) → si verifica, sigue donde estaba.
+            No cierra sesión, solo pide la clave de nuevo.</li>
+        <li><strong>Cerrar pestaña:</strong> <code class="inline">pagehide</code> → <code class="inline">navigator.sendBeacon</code> manda el logout
+            (funciona aunque la página ya se esté cerrando). sessionStorage muere solo con la pestaña.</li>
+        <li><strong>Botón "atrás":</strong> <code class="inline">pageshow(persisted)</code> + headers no-store → si la sesión no existe, vuelve al login.</li>
+        <li><strong>Otras pestañas:</strong> evento <code class="inline">storage</code> → si otra pestaña cerró sesión, esta también vuelve al login.</li>
+    </ul>
+
+    <h4>El módulo Usuarios (solo admin)</h4>
+    <ul class="clean">
+        <li><strong>Directorio:</strong> <code class="inline">cargarUsuarios()</code> → GET /obtener → guarda en
+            <code class="inline">usuariosCache</code> → <code class="inline">renderizarFilas()</code> pinta la tabla.
+            El buscador filtra en memoria mientras se escribe (sin llamar al servidor). "Consultar directorio" muestra todo.</li>
+        <li><strong>Pestaña Historial:</strong> <code class="inline">cargarHistorial()</code> → GET /historial/obtener →
+            nombre, fecha ingreso, fecha salida, IP.</li>
+    </ul>
+
+    <h4>El formulario de usuario (crear/editar)</h4>
+    <ul class="clean">
+        <li>Validación en tiempo real (debounce 300ms): cédula solo números + no duplicada, username/email no duplicados,
+            contraseña ≥6 (obligatoria al crear, opcional al editar), confirmación debe coincidir.
+            Bordes rojos/verdes + check ✓ mientras se escribe.</li>
+        <li><strong>Dos modos de edición:</strong>
+            <ul class="clean">
+                <li><strong>Admin editando a otro:</strong> todos los campos editables.</li>
+                <li><strong>Operario en "Mi Configuración":</strong> datos enmascarados de solo lectura; primero
+                    <code class="inline">btnModificarPassword</code> → verificación → revela campos de contraseña.
+                    Solo envía password; el backend refuerza ignorando los demás campos.</li>
+            </ul>
+        </li>
+        <li><strong>Anti-guardado:</strong> tras cada operación se limpian los campos password y se usa
+            <code class="inline">autocomplete="new-password"</code> - el navegador no debe ofrecer guardarla.</li>
+    </ul>
+
+    <div class="aviso azul"><strong>Detalle visual:</strong> login.html y panel.html envuelven <code class="inline">Swal.fire</code>
+    para que TODAS las notificaciones se cierren solas a los 3-4s en la esquina superior derecha,
+    EXCEPTO las confirmaciones con botones (bloquear, eliminar, etc.).</div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="s12">
+    <h2 class="sec"><span class="num">11</span> La base de datos</h2>
+    <p>Base de datos MySQL <code class="inline">proyecto_3d_mind</code> en XAMPP. Tablas reales:</p>
+    <table>
+        <tr><th>Tabla</th><th>Uso</th><th>Llaves</th></tr>
+        <tr><td><code class="inline">rol</code></td><td>Catálogo: Administrador(1), Operario de tienda(2)</td><td>id_rol PK</td></tr>
+        <tr><td><code class="inline">tipo_documento</code></td><td>Catálogo: CC, TI, CE</td><td>id_tipo_doc PK</td></tr>
+        <tr><td><code class="inline">usuario</code></td><td>Usuarios del sistema</td><td>id_usuario PK; FK a rol y tipo_documento</td></tr>
+        <tr><td><code class="inline">historial_acceso</code></td><td>Auditoría de inicios/cierres</td><td>id_sesion PK; FK a usuario</td></tr>
+        <tr><td><code class="inline">cliente, insumo, pedido, detalle_pedido, estado_pedido, venta, estado_venta, metodo_pago, abono</code></td><td><span class="badge self">Creadas pero sin uso</span> - módulos futuros</td><td>-</td></tr>
+    </table>
+    <p><strong>Campos clave de <code class="inline">usuario</code>:</strong> <code class="inline">estado</code>
+       ('Activo'/'Bloqueado'/'Eliminado' - la eliminación es lógica), <code class="inline">int_fallidos</code>
+       (contador de intentos), <code class="inline">debe_cambiar_password</code> (bandera de primer ingreso).</p>
+    <p><strong><code class="inline">historial_acceso</code>:</strong> fecha_ingreso, fecha_salida, ip_acceso, id_usuario_FK.</p>
+    <p><strong><code class="inline">reset_db.js</code>:</strong> vacía las tablas de datos (abono, venta, detalle_pedido,
+       pedido, cliente, historial_acceso, usuario) y reinicia AUTO_INCREMENT, en orden de llaves foráneas con
+       <code class="inline">FOREIGN_KEY_CHECKS = 0</code>. No toca catálogos. Uso: <code class="inline">node backend/reset_db.js</code>.</p>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="s13">
+    <h2 class="sec"><span class="num">12</span> Flujos completos</h2>
+
+    <details class="metodo"><summary>A · Primera vez (sistema virgen)</summary><div class="body">
+        <p>index.html → GET setup-status → needsSetup:true → formulario admin → POST setup-admin →
+        backend: contarNoEliminados()==0 OK → crea rol=1 → responderSesionExitosa (historial + token) →
+        frontend guarda sesión → bienvenida → panel.html (ya logueado).</p></div></details>
+
+    <details class="metodo"><summary>B · Login normal (admin)</summary><div class="body">
+        <p>login.html → POST /usuarios/login → buscarPorUsername → Activo → bcrypt.compare OK →
+        reiniciarIntentos → responderSesionExitosa (INSERT historial + token en Map) →
+        frontend guarda sesión → panel.html → esAdmin=true → menú completo.</p></div></details>
+
+    <details class="metodo"><summary>C · Login de operario (primer ingreso)</summary><div class="body">
+        <p>Admin crea operario → backend marca debe_cambiar_password=1 → operario hace login →
+        respuesta trae requiereCambioPassword:true → login.html abre modal "Actualización obligatoria" →
+        PUT cambiar-password (autorizado por esPrimerIngreso) → backend cifra y apaga la bandera →
+        panel.html con esAdmin=false → solo bienvenida y su configuración.</p></div></details>
+
+    <details class="metodo"><summary>D · Crear usuario (admin)</summary><div class="body">
+        <p>Click "Nuevo usuario" → verificación admin (pide clave si pasaron >10min) → modal →
+        POST /registrar (middleware verificarAdmin revisa rol=1) → backend re-valida TODO →
+        bcrypt.hash + INSERT → "Usuario registrado con exito".</p></div></details>
+
+    <details class="metodo"><summary>E · Editar / Eliminar / Bloquear</summary><div class="body">
+        <p>Mismo patrón: clic → verificación admin (bloquear/desbloquear siempre la piden;
+        editar/eliminar usan la ventana de 10min) → confirmación SweetAlert → endpoint →
+        middleware + controlador validan de nuevo → modelo UPDATE → recarga cargarUsuarios().</p></div></details>
+
+    <details class="metodo"><summary>F · Cierre de sesión (manual, inactividad o pestaña)</summary><div class="body">
+        <p><strong>Manual:</strong> logout backend + salida historial + limpiar sessionStorage + aviso pestañas + login.<br>
+        <strong>Inactividad (5min):</strong> timers → modal reautenticación obligatorio → si verifica, sigue donde estaba.<br>
+        <strong>Cerrar pestaña:</strong> pagehide → sendBeacon logout → token muere en servidor; sessionStorage muere con la pestaña.<br>
+        <strong>Atrás:</strong> pageshow(persisted) + no-store → sin sesión, vuelve al login.</p></div></details>
+
+    <details class="metodo"><summary>G · Operario cambia su contraseña</summary><div class="body">
+        <p>Menú usuario → Configuración → editarUsuario(propio id) → GET /usuarios/perfil (endpoint propio) →
+        modal con datos enmascarados + "Modificar contraseña" → verificación (siempre) → revela campos →
+        submit → PUT /actualizar/:id (middleware AdminOSelf deja pasar por ser él mismo;
+        controlador ignora todos los campos menos password).</p></div></details>
+</section>
+
+<!-- ============ 13 ============ -->
+<section id="s14">
+    <h2 class="sec"><span class="num">13</span> Qué es cada archivo del proyecto</h2>
+    <p>Inventario completo de todo lo que existe en el proyecto y para qué sirve:</p>
+
+    <h3>Raíz</h3>
+    <table>
+        <tr><th>Archivo / carpeta</th><th>Qué es y para qué sirve</th></tr>
+        <tr><td><code class="inline">package.json</code></td><td>La "ficha" del proyecto: nombre, versión, dependencias (express, mysql2, bcryptjs, cors, dotenv) y scripts. <code class="inline">npm start</code> ejecuta <code class="inline">node backend/server.js</code>.</td></tr>
+        <tr><td><code class="inline">package-lock.json</code></td><td>Versiones exactas de cada librería instalada. Hace que <code class="inline">npm install</code> sea reproducible en cualquier PC.</td></tr>
+        <tr><td><code class="inline">.gitignore</code></td><td>Le dice a Git qué NO subir: node_modules/, .env (secretos), logs, archivos de Windows/IDE. Protege las contraseñas del repo.</td></tr>
+        <tr><td><code class="inline">README.md</code></td><td>Presentación del proyecto en GitHub.</td></tr>
+        <tr><td><code class="inline">node_modules/</code></td><td>Librerías instaladas por npm. No se edita; se regenera con npm install. No se sube a Git.</td></tr>
+        <tr><td><code class="inline">docs/</code></td><td>Manuales en PDF para entrega (usuario y técnico).</td></tr>
+        <tr><td><code class="inline">database/</code></td><td>Esquema SQL, modelo relacional (PNG) y archivo de MySQL Workbench (.mwb).</td></tr>
+        <tr><td><code class="inline">.devin/rules/</code></td><td>Reglas del proyecto para agentes de IA (protecciones de archivos, limpieza).</td></tr>
+        <tr><td><code class="inline">GUIA_INTERNA_SISTEMA.md</code></td><td>Esta guía en texto (versión de estudio). Este HTML es la versión interactiva.</td></tr>
+    </table>
+
+    <h3>Backend</h3>
+    <table>
+        <tr><th>Archivo</th><th>Qué es y para qué sirve</th></tr>
+        <tr><td><code class="inline">backend/server.js</code></td><td><strong>El corazón del backend.</strong> Crea la app Express, configura middlewares (cors, json, anti-caché, archivos estáticos), conecta las rutas del API, inicializa datos base (roles, tipos de doc, columna debe_cambiar_password) y abre el puerto 3000.</td></tr>
+        <tr><td><code class="inline">backend/reset_db.js</code></td><td><strong>Script de reinicio.</strong> Vacía las tablas de datos (usuarios, historial, y las de módulos futuros) y reinicia AUTO_INCREMENT, dejando el sistema listo para un nuevo setup. Uso manual: <code class="inline">node backend/reset_db.js</code>.</td></tr>
+        <tr><td><code class="inline">backend/.env</code></td><td>Credenciales de MySQL y puerto. <strong>Nunca se sube a Git</strong> (está en .gitignore).</td></tr>
+        <tr><td><code class="inline">backend/.env.example</code></td><td>Plantilla del .env con valores por defecto. Sirve para que otro desarrollador sepa qué variables crear.</td></tr>
+        <tr><td><code class="inline">backend/configuracion/basedatos.js</code></td><td>La conexión a MySQL: lee el .env y crea el pool de conexiones que usan todos los modelos.</td></tr>
+        <tr><td><code class="inline">backend/modelos/Usuario.js</code></td><td>Consultas SQL de la tabla usuario: crear (con bcrypt), buscar, duplicados, listar, actualizar, bloquear/desbloquear/eliminar (lógico), cambiar clave, contador de intentos.</td></tr>
+        <tr><td><code class="inline">backend/modelos/HistorialAcceso.js</code></td><td>Consultas de historial_acceso: registrar ingreso, marcar salida, listar todo con nombres de usuario.</td></tr>
+        <tr><td><code class="inline">backend/modelos/Rol.js</code></td><td>Consultas de la tabla rol: listar, contar, insertar los 2 roles base.</td></tr>
+        <tr><td><code class="inline">backend/modelos/TipoDocumento.js</code></td><td>Consultas de tipo_documento: listar, contar, insertar CC/TI/CE.</td></tr>
+        <tr><td><code class="inline">backend/controladores/UsuarioControlador.js</code></td><td>Toda la lógica de usuarios: registrar, login (con bloqueo ×5), sesión/token, setup inicial, cambiar clave, verificar clave admin, perfil, CRUD con autoedición.</td></tr>
+        <tr><td><code class="inline">backend/controladores/HistorialControlador.js</code></td><td>Lógica del historial: registrar salida y listar accesos.</td></tr>
+        <tr><td><code class="inline">backend/controladores/RolControlador.js</code></td><td>Solo listar roles (para los selects).</td></tr>
+        <tr><td><code class="inline">backend/controladores/TipoDocumentoControlador.js</code></td><td>Solo listar tipos de documento (para los selects).</td></tr>
+        <tr><td><code class="inline">backend/middleware/verificarAdmin.js</code></td><td>Filtro: solo deja pasar si el usuario del header es Administrador (rol=1).</td></tr>
+        <tr><td><code class="inline">backend/middleware/verificarAdminOSelf.js</code></td><td>Filtro: deja pasar si es admin O si el usuario es él mismo (para editar su ficha).</td></tr>
+        <tr><td><code class="inline">backend/rutas/*.js</code></td><td>5 archivos que conectan cada URL del API con su middleware y controlador (usuarioRutas, authRutas, historialRutas, rolRutas, tipoDocumentoRutas).</td></tr>
+    </table>
+
+    <h3>Frontend</h3>
+    <table>
+        <tr><th>Archivo</th><th>Qué es y para qué sirve</th></tr>
+        <tr><td><code class="inline">frontend/index.html</code></td><td>Portada del sistema. Decide si mostrar "crear administrador" (sistema virgen) o "iniciar sesión" según setup-status.</td></tr>
+        <tr><td><code class="inline">frontend/login.html</code></td><td>Pantalla de login: formulario, cambio obligatorio de clave de primer ingreso, guardado de sesión, bienvenida.</td></tr>
+        <tr><td><code class="inline">frontend/panel.html</code></td><td>El panel de trabajo: menú lateral, módulo Usuarios (directorio + historial), configuración de perfil, doble verificación, cierre por inactividad, protección anti-caché.</td></tr>
+        <tr><td><code class="inline">frontend/js/app.js</code></td><td>El puente frontend↔backend: clase Aplicacion (fetch + headers), clases por recurso, y la clase Sesion (sessionStorage).</td></tr>
+        <tr><td><code class="inline">frontend/css/estilos.css</code></td><td>Toda la apariencia visual del sistema (tema Carbón + Plata, formularios, tablas, modales, animaciones).</td></tr>
+        <tr><td><code class="inline">frontend/img/</code></td><td>Logo, iconos e imágenes estáticas que usan las páginas.</td></tr>
+    </table>
+</section>
+
+<!-- ============ 14 ============ -->
+<section id="s15">
+    <h2 class="sec"><span class="num">14</span> Glosario y preguntas clave</h2>
+
+    <h3>Glosario rápido</h3>
+    <table>
+        <tr><th>Término</th><th>Qué significa en este proyecto</th></tr>
+        <tr><td>Endpoint</td><td>Una URL del API con su método (GET/POST/PUT/DELETE).</td></tr>
+        <tr><td>Middleware</td><td>Filtro que corre antes del controlador (verificarAdmin = solo admin; verificarAdminOSelf = admin o uno mismo).</td></tr>
+        <tr><td>Pool de conexiones</td><td>Grupo de conexiones a MySQL reutilizables (no se abre/cierra una por consulta).</td></tr>
+        <tr><td>bcrypt / hash</td><td>La contraseña nunca se guarda en texto plano; se guarda una "huella" irreversible. <code class="inline">bcrypt.compare</code> verifica sin leer la original.</td></tr>
+        <tr><td>Eliminación lógica</td><td>En vez de DELETE, se pone estado='Eliminado' y el registro se oculta. Conserva el historial.</td></tr>
+        <tr><td>sessionStorage vs localStorage</td><td>sessionStorage muere al cerrar la pestaña (la sesión); localStorage sobrevive (solo avisa a otras pestañas del logout).</td></tr>
+        <tr><td>Map <code class="inline">sesionesActivas</code></td><td>Lista en memoria del servidor token→usuario. Se pierde al reiniciar.</td></tr>
+        <tr><td>x-id-usuario</td><td>Header que el frontend manda en cada petición con el id del usuario en sesión; el backend lo usa para permisos.</td></tr>
+        <tr><td>debounce</td><td>Esperar X ms después de dejar de escribir antes de validar (los checks rojos/verdes).</td></tr>
+        <tr><td>Anti-BFCache</td><td>Evitar que el navegador congele la página y la restaure con datos viejos al usar atrás/adelante.</td></tr>
+        <tr><td>JSON</td><td>Formato de datos que viajan entre frontend y backend (texto legible por ambos).</td></tr>
+        <tr><td>API REST</td><td>Estilo de API con URLs por recurso y métodos HTTP (GET=leer, POST=crear, PUT=actualizar, DELETE=borrar).</td></tr>
+    </table>
+
+    <h3>Preguntas frecuentes sobre el sistema</h3>
+    <p>Las dudas más comunes de alguien que está conociendo el proyecto, agrupadas por tema.</p>
+
+    <h4>Sobre entrar y usar el sistema</h4>
+
+    <details class="metodo"><summary>¿Qué pasa la primera vez que abro el sistema?</summary><div class="body">
+        <p>index.html consulta <code class="inline">GET /api/auth/setup-status</code>. Si no hay usuarios en la BD,
+        responde <code class="inline">needsSetup: true</code> y la página muestra el formulario para crear el
+        <strong>primer administrador</strong> (nombre, cédula, email, username, contraseña). Al enviarlo,
+        <code class="inline">setupAdmin</code> crea el usuario con rol Administrador y lo deja logueado
+        automáticamente. A partir de ahí, el sistema ya pide login normal.</p></div></details>
+
+    <details class="metodo"><summary>¿Por qué el operario debe cambiar la contraseña y el administrador no?</summary><div class="body">
+        <p>Es una regla de seguridad del negocio: cuando el admin crea un operario (rol 2), el backend marca
+        <code class="inline">debe_cambiar_password = 1</code>. En su primer login, la respuesta trae
+        <code class="inline">requiereCambioPassword: true</code> y login.html abre el modal "Actualización
+        obligatoria" antes de dejarlo entrar. El admin (rol 1) se crea con la bandera en 0 porque se supone
+        que él mismo eligió su clave en el setup.</p></div></details>
+
+    <details class="metodo"><summary>¿Qué significan los estados Activo, Bloqueado y Eliminado?</summary><div class="body">
+        <p>Son los 3 valores del campo <code class="inline">estado</code> en la tabla usuario:</p>
+        <ul class="clean">
+            <li><strong>Activo</strong>: puede iniciar sesión normalmente.</li>
+            <li><strong>Bloqueado</strong>: no puede entrar. Llega ahí por bloqueo manual del admin o automático
+                tras 5 intentos fallidos. Solo el admin puede desbloquearlo.</li>
+            <li><strong>Eliminado</strong>: eliminación lógica - el registro sigue en la BD pero desaparece de las
+                consultas y el login lo rechaza. No se puede "deseliminar" desde el sistema.</li>
+        </ul></div></details>
+
+    <details class="metodo"><summary>¿Qué pasa si un usuario se equivoca la contraseña 5 veces?</summary><div class="body">
+        <p>Cada fallo llama <code class="inline">incrementarIntentosFallidos</code>. La respuesta le dice
+        "Le quedan N intentos". Al llegar a 5, el backend ejecuta <code class="inline">bloquear()</code>:
+        el estado pasa a 'Bloqueado' y a partir de ahí el login responde 403 "Usuario bloqueado por intentos
+        fallidos" sin siquiera revisar la contraseña. Solo el admin puede desbloquearlo, y al hacerlo
+        el contador vuelve a 0.</p></div></details>
+
+    <details class="metodo"><summary>¿Qué pasa si cierro la pestaña o el navegador sin cerrar sesión?</summary><div class="body">
+        <p>Dos cosas pasan solas: (1) <code class="inline">sessionStorage</code> se destruye con la pestaña,
+        así que al volver a abrirla no hay sesión y toca hacer login de nuevo; (2) el evento
+        <code class="inline">pagehide</code> dispara un <code class="inline">sendBeacon</code> que llama
+        <code class="inline">/api/auth/logout</code> y borra el token del Map <code class="inline">sesionesActivas</code>
+        en el servidor. Si el navegador muere de golpe sin ejecutar pagehide, el token queda huérfano en memoria
+        hasta que el servidor se reinicie (no pasa nada grave: la sesión del navegador ya no existe).</p></div></details>
+
+    <details class="metodo"><summary>¿Por qué el botón "atrás" del navegador me regresa al login?</summary><div class="body">
+        <p>Por la protección anti-BFCache. El servidor envía headers <code class="inline">no-store</code> en todas
+        las respuestas para que el navegador no guarde las páginas, y además <code class="inline">panel.html</code>
+        escucha el evento <code class="inline">pageshow</code>: si la página fue restaurada desde la caché del
+        navegador (<code class="inline">e.persisted</code>) o la sesión ya no existe, redirige al login con
+        <code class="inline">location.replace</code> (sin dejar la página protegida en el historial).</p></div></details>
+
+    <details class="metodo"><summary>¿Qué es la doble verificación de contraseña?</summary><div class="body">
+        <p>Antes de acciones sensibles (entrar a Usuarios, crear/editar/eliminar usuarios, bloquear/desbloquear,
+        cambiar la propia clave), el sistema abre un modal pidiendo la contraseña del usuario en sesión y la valida
+        contra el backend (<code class="inline">POST /api/auth/verificar-admin</code>). Si es correcta, la
+        verificación queda vigente <strong>10 minutos</strong> y no vuelve a pedirla para acciones normales.
+        Bloquear/desbloquear y el cambio de clave del operario la piden <strong>siempre</strong>, sin importar
+        los 10 minutos.</p></div></details>
+
+    <details class="metodo"><summary>¿Qué pasa después de 5 minutos sin usar el sistema?</summary><div class="body">
+        <p>El panel programa dos temporizadores: a los 4.5 minutos aparece un aviso en pantalla, y a los 5 minutos
+        se abre el modal de verificación con el modo <code class="inline">esReautenticacion</code>: "Tu sesión se
+        bloqueó por inactividad, ingresa tu contraseña para continuar donde estabas". No se puede cerrar (sin X ni
+        clic fuera) porque es obligatorio. Cualquier actividad del mouse/teclado reinicia los temporizadores.
+        Si verificas bien, sigues trabajando; no perdiste la sesión.</p></div></details>
+
+    <details class="metodo"><summary>¿Olvidé mi contraseña, qué hago?</summary><div class="body">
+        <p>El enlace "Olvidé mi contraseña" del login solo muestra un aviso: <em>contacte al administrador</em>.
+        No hay recuperación por correo ni pregunta secreta - el admin debe entrar al módulo Usuarios y editar
+        al usuario poniéndole una contraseña nueva (el campo de contraseña en edición es opcional; si lo dejas
+        vacío conserva la actual).</p></div></details>
+
+    <details class="metodo"><summary>¿Qué es "Módulo en actualización"?</summary><div class="body">
+        <p>El menú lateral tiene entradas para Pedidos, Ventas y Clientes que aún no están implementadas
+        (el sistema real solo tiene Usuarios funcionando). Al hacer clic en ellas aparece un SweetAlert
+        "Módulo en actualización" y el panel sigue en la vista de bienvenida. Las tablas de la BD para esos
+        módulos ya existen pero están vacías.</p></div></details>
+
+    <h4>Sobre usuarios y permisos</h4>
+
+    <details class="metodo"><summary>¿Quién puede crear, editar, bloquear o eliminar usuarios?</summary><div class="body">
+        <p>Solo el <strong>Administrador (rol 1)</strong>. El backend lo refuerza con los middlewares
+        <code class="inline">verificarAdmin</code> (registrar, listar, bloquear, desbloquear, eliminar) y
+        <code class="inline">verificarAdminOSelf</code> (actualizar: admin o el propio usuario). El frontend
+        también lo oculta: al operario ni siquiera le aparece el menú de Usuarios.</p></div></details>
+
+    <details class="metodo"><summary>¿Qué puede editar un operario en su perfil?</summary><div class="body">
+        <p>Solo su contraseña. En "Mi Configuración" ve sus datos enmascarados de solo lectura y debe pasar la
+        doble verificación para revelar los campos de contraseña. Aunque intente enviar otros campos, el
+        controlador <code class="inline">actualizar</code> detecta que es autoedición de no-admin e
+        <strong>ignora todo menos la contraseña</strong>.</p></div></details>
+
+    <details class="metodo"><summary>¿Cómo sé qué rol tiene cada usuario?</summary><div class="body">
+        <p>El directorio de usuarios muestra la columna "Rol" con el nombre (<code class="inline">nombre_rol</code>
+        viene del JOIN con la tabla rol). En la barra superior del panel también se ve el rol de la sesión.
+        Internamente: <code class="inline">id_rol_FK = 1</code> es Administrador, <code class="inline">= 2</code>
+        es Operario de tienda.</p></div></details>
+
+    <details class="metodo"><summary>¿El administrador puede ver las contraseñas de los usuarios?</summary><div class="body">
+        <p><strong>No, y no podría aunque quisiera.</strong> Las contraseñas se guardan con bcrypt: una "huella"
+        irreversible. Ni el admin, ni la BD en texto plano, ni nadie puede recuperar la clave original - solo
+        compararla con <code class="inline">bcrypt.compare</code> al hacer login o al verificar la doble
+        verificación. Por eso la única forma de "recuperar" acceso es que el admin asigne una clave nueva.</p></div></details>
+
+    <details class="metodo"><summary>¿Qué muestra la pestaña Historial de accesos?</summary><div class="body">
+        <p>La tabla <code class="inline">historial_acceso</code>: cada fila es un inicio de sesión con el nombre
+        del usuario, fecha y hora de ingreso, fecha y hora de salida (si cerró sesión bien), y la IP desde
+        donde se conectó. Se registra automáticamente en cada login (<code class="inline">responderSesionExitosa</code>)
+        y la salida se marca al cerrar sesión (manual, por inactividad no - porque no cierra, o al cerrar pestaña
+        si el sendBeacon alcanzó). Sirve como auditoría: quién entró, cuándo y desde dónde.</p></div></details>
+
+    <details class="metodo"><summary>¿Puedo tener el sistema abierto en dos pestañas o dos computadores?</summary><div class="body">
+        <p>Sí. Cada pestaña/navegador tiene su propia sesión en su propio sessionStorage y su propio token en el
+        Map del servidor (el Map acepta varios tokens a la vez). Si cierras sesión en una pestaña, las demás se
+        enteran por el evento <code class="inline">storage</code> y también vuelven al login. Dos usuarios
+        distintos pueden trabajar en paralelo sin problema - las consultas a MySQL son independientes.</p></div></details>
+
+    <h4>Sobre el funcionamiento técnico</h4>
+
+    <details class="metodo"><summary>¿Qué valida el frontend y qué valida el backend?</summary><div class="body">
+        <p>El frontend valida para dar <strong>feedback inmediato</strong>: bordes rojos/verdes y mensajes mientras
+        escribes (cédula numérica, email con formato, campos no duplicados contra la lista cargada, contraseña
+        ≥6 y confirmación igual). Pero la seguridad REAL está toda en el backend: cada endpoint vuelve a validar
+        campos, permisos de rol y duplicados en la BD. Aunque alguien llame la API a mano con otras herramientas
+        (Postman, curl), el backend lo rechaza igual.</p></div></details>
+
+    <details class="metodo"><summary>¿Qué pasa si el servidor se reinicia con usuarios conectados?</summary><div class="body">
+        <p>El Map <code class="inline">sesionesActivas</code> se vacía (los tokens se pierden), pero las sesiones
+        en el sessionStorage de cada navegador siguen existiendo. El usuario podría seguir navegando porque el
+        panel confía en sessionStorage, y la doble verificación seguiría funcionando porque va contra la BD.
+        Lo que se pierde es el logout "limpio" del token (queda huérfano hasta reiniciar, que es lo mismo).
+        Además, <code class="inline">inicializarDatos()</code> vuelve a correr al arrancar: vuelve a verificar
+        roles, tipos de documento y la columna debe_cambiar_password (todo idempotente, no duplica nada).</p></div></details>
+
+    <details class="metodo"><summary>¿El sistema necesita internet para funcionar?</summary><div class="body">
+        <p>Casi todo funciona sin internet porque todo está en localhost. Hay dos detalles: (1) las librerías
+        SweetAlert2, Lucide, Animate.css y highlight se cargan desde CDN - sin internet las notificaciones y
+        iconos no se verían (aunque el sistema seguiría respondiendo); (2) <code class="inline">obtenerIP()</code>
+        consulta api.ipify.org para registrar la IP pública en el historial - si falla, usa 127.0.0.1 como
+        fallback y el login funciona igual.</p></div></details>
+
+    <details class="metodo"><summary>¿Puedo usar el sistema desde otro computador de la red?</summary><div class="body">
+        <p>El servidor Express escucha en <code class="inline">localhost:3000</code> por defecto, así que solo es
+        accesible desde la misma PC. Para acceso desde otro equipo habría que cambiar el bind del servidor y la
+        <code class="inline">baseUrl</code> del frontend (que hoy está quemada como <code class="inline">http://localhost:3000/api</code>).</p></div></details>
+
+    <details class="metodo"><summary>¿Qué hace <code class="inline">reset_db.js</code> y cuándo se usa?</summary><div class="body">
+        <p>Es un script manual de laboratorio (<code class="inline">node backend/reset_db.js</code>) que vacía
+        las tablas de datos - usuarios, historial de accesos y las de módulos futuros - y reinicia el contador
+        AUTO_INCREMENT. NO toca los catálogos (roles, tipos de documento). Se usa cuando quieren empezar el
+        sistema de cero para una nueva configuración inicial o para limpiar datos de prueba.</p></div></details>
+
+    <details class="metodo"><summary>¿Qué significan los colores rojo y verde en los campos del formulario?</summary><div class="body">
+        <p>Es la validación en tiempo real: <strong>verde + ✓</strong> = el campo está bien (formato correcto y
+        no duplicado), <strong>rojo + mensaje</strong> = hay un problema (cédula con letras, email mal formado,
+        username ya existe, contraseñas que no coinciden, etc.). El debounce de 300ms evita validar en cada
+        tecla - espera a que dejes de escribir. El formulario no deja guardar mientras haya campos en rojo.</p></div></details>
+
+    <details class="metodo"><summary>¿Qué pasa si dos personas editan al mismo tiempo?</summary><div class="body">
+        <p>No hay control de concurrencia (bloqueos ni versionado): el último en guardar gana, sobrescribe lo
+        que el otro escribió. Es una limitación típica de proyectos formativos con una sola tabla de usuarios
+        y pocos usuarios simultáneos. En la práctica el volumen es bajo y el riesgo es mínimo.</p></div></details>
+
+    <details class="metodo"><summary>¿Por qué el login dice "el usuario no existe" en vez de "contraseña incorrecta"?</summary><div class="body">
+        <p>Decisión de diseño (aunque revela si un username existe - una debilidad menor de seguridad llamada
+        enumeración de usuarios). Ayuda al usuario a darse cuenta de un error de tipeo en el nombre. Si el
+        usuario existe pero la clave está mal, el mensaje es distinto: "Usuario o contraseña incorrectos.
+        Le quedan N intentos".</p></div></details>
+
+    <h4>Sobre seguridad</h4>
+
+    <details class="metodo"><summary>¿Por qué el token de sesión no se usa para autorizar?</summary><div class="body">
+        <p>El <code class="inline">sessionToken</code> sirve para logout y control en memoria, pero los middlewares
+        autorizan por el header <code class="inline">x-id-usuario</code> + consulta a la BD. Es simple pero tiene
+        el punto débil de que el id viaja en texto plano (limitación reconocida del proyecto). Un diseño más
+        robusto usaría JWT firmados o tokens de sesión verificados en cada petición.</p></div></details>
+
+    <details class="metodo"><summary>¿Cómo evitan que roben la sesión?</summary><div class="body">
+        <p>Varias capas: sessionStorage muere al cerrar la pestaña; headers <code class="inline">no-store</code> +
+        pageshow evitan que el botón atrás restaure la página; la doble verificación pide la clave para acciones
+        sensibles; la inactividad de 5 min obliga a reautenticar; las contraseñas nunca viajan en texto plano
+        (bcrypt). Limitación honesta: el <code class="inline">x-id-usuario</code> viaja en texto plano sin firma,
+        así que alguien que lo manipule podría suplantar al usuario ante el API.</p></div></details>
+
+    <details class="metodo"><summary>¿Por qué <code class="inline">verificar-admin</code> devuelve 403 y no 401?</summary><div class="body">
+        <p>Porque <code class="inline">app.js</code> trata cualquier 401 como "sesión inválida" y cierra sesión.
+        Si la clave de verificación estuviera mal y devolviera 401, te sacaría del panel por un simple error de
+        tipeo. Con 403 solo muestra "Contraseña incorrecta" y puedes reintentar sin perder la sesión.</p></div></details>
+
+    <details class="metodo"><summary>¿Por qué no hay borrado físico de usuarios?</summary><div class="body">
+        <p>Eliminación lógica: conserva el historial de accesos (que tiene FK al usuario) y la auditoría.
+        Un usuario "eliminado" ya no puede loguear (el login lo rechaza con 403) ni aparece en el directorio,
+        pero su historial queda intacto para consultas. Además <code class="inline">reset_db.js</code> es la
+        herramienta para vaciar datos de verdad cuando haga falta.</p></div></details>
+
+    <details class="metodo"><summary>¿Qué pasa si alguien intenta entrar a panel.html sin login?</summary><div class="body">
+        <p>Lo primero que hace el script de panel.html es verificar <code class="inline">sesion.estaActiva()</code>:
+        si no hay sesión en sessionStorage, guarda el aviso "La sesión se ha cerrado..." y redirige al login
+        con <code class="inline">location.replace</code>. Lo mismo pasa al cargar login.html con sesión activa
+        (va directo al panel) y al revés. La "protección" real de datos está en el backend (los middlewares),
+        porque el frontend siempre se puede saltar - por eso cada endpoint vuelve a verificar permisos.</p></div></details>
+</section>
+
+<footer style="text-align:center; color:var(--silver-dim); font-size:12px; padding-top:30px; border-top:1px solid var(--border);">
+    Guía interna de estudio - Proyecto 3D MIND · SENA · No es documento de entrega<br>
+    Generada a partir del código real del proyecto
+</footer>
+
+<!-- ===== Asistente de ayuda ===== -->
+<button id="ayudaFab" title="Asistente de ayuda: preguntas frecuentes del sistema">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Ayuda
+</button>
+<div id="ayudaPanel" role="dialog" aria-label="Asistente de ayuda">
+    <div class="ayuda-header">
+        <div class="avatar">?</div>
+        <div class="info">
+            <div class="nom">Asistente de ayuda</div>
+            <div class="est">Preguntas frecuentes del sistema</div>
+        </div>
+        <button id="ayudaCerrar" title="Cerrar" aria-label="Cerrar ayuda">✕</button>
+    </div>
+    <div class="ayuda-sugerencias" id="ayudaSugerencias"></div>
+    <div id="ayudaMensajes"></div>
+    <form id="ayudaForm">
+        <input id="ayudaInput" type="text" placeholder="Escribe tu pregunta..." autocomplete="off" maxlength="500">
+        <button id="ayudaEnviar" type="submit" title="Enviar" aria-label="Enviar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        </button>
+    </form>
+</div>
+
+</main>
+</div>
+
+<script>
+// Botón de tema claro/oscuro
+(function() {
+    const btn = document.getElementById('btnTema');
+    const luna = btn.querySelector('.icono-luna');
+    const sol = btn.querySelector('.icono-sol');
+
+    function pintarIcono() {
+        const claro = document.documentElement.dataset.theme === 'light';
+        luna.hidden = claro;   // en tema claro se muestra el sol (para volver a oscuro)
+        sol.hidden = !claro;
+        btn.title = claro ? 'Cambiar a tema oscuro' : 'Cambiar a tema claro';
+    }
+
+    btn.addEventListener('click', function() {
+        const nuevo = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = nuevo;
+        localStorage.setItem('guia_theme', nuevo);
+        pintarIcono();
+    });
+
+    pintarIcono();
+})();
+
+// Resaltar código
+hljs.highlightAll();
+
+// Scrollspy: marca el enlace activo en la barra lateral
+const secciones = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('#nav a');
+window.addEventListener('scroll', () => {
+    let actual = '';
+    secciones.forEach(sec => {
+        if (window.scrollY >= sec.offsetTop - 120) actual = sec.id;
+    });
+    links.forEach(l => {
+        l.classList.toggle('activo', l.getAttribute('href') === '#' + actual);
+    });
+});
+</script>
+
+<script>
+// ==================== ASISTENTE DE AYUDA ====================
+// Solo responde con la base de preguntas frecuentes de abajo.
+// Funciona 100% local, sin internet y sin tocar el proyecto.
+(function() {
+
+    // ---------- BASE DE CONOCIMIENTO: preguntas frecuentes ----------
+    const FAQ = [
+        // ===== General =====
+        { q: '¿Qué es 3D MIND?', a: 'Es una plataforma web para una empresa de ingeniería enfocada en impresión 3D. Hoy el sistema implementa la gestión de usuarios (registro, roles, sesiones, historial de accesos). Los módulos de Pedidos, Ventas y Clientes están creados en la base de datos pero aún no tienen pantalla ni lógica, aparecen como "Módulo en actualización".', s: 's1' },
+        { q: '¿Qué tecnologías usa el sistema?', a: 'Backend: Node.js con Express 5 y MySQL a través de mysql2, contraseñas con bcryptjs, variables de entorno con dotenv. Frontend: HTML, CSS y JavaScript puro (sin frameworks), SweetAlert2 para notificaciones, Lucide para iconos y Animate.css para animaciones (los tres últimos se cargan desde internet). Base de datos: MySQL en XAMPP.', s: 's2' },
+        { q: '¿Cómo está organizado el proyecto?', a: 'En 4 partes: backend/ (el servidor, organizado por capas: configuracion, modelos, controladores, middleware, rutas), frontend/ (las 3 páginas y sus archivos css/js/img), database/ (esquema SQL, modelo relacional e imagen) y docs/ (los manuales en PDF). En la raíz están package.json, .gitignore, README.md y esta guía.', s: 's3' },
+        { q: '¿Cómo funciona el sistema por dentro?', a: 'El navegador pide datos al servidor Node por URLs llamadas endpoints (API REST). El servidor pasa por: ruta (qué función atiende) -> middleware (filtro de permisos) -> controlador (la lógica) -> modelo (consulta SQL) -> MySQL. La respuesta vuelve como JSON al navegador. El navegador NUNCA habla directo con la base de datos.', s: 's1' },
+        { q: '¿Necesito internet para usar el sistema?', a: 'Casi todo funciona sin internet porque todo corre en localhost. Dos detalles: las librerías SweetAlert2, Lucide y Animate.css se cargan desde internet (sin conexión no se verían las notificaciones ni los iconos), y al hacer login se consulta api.ipify.org para registrar la IP pública; si falla, usa 127.0.0.1 y el login funciona igual.', s: 's11' },
+        { q: '¿Qué es una API y qué es un endpoint?', a: 'La API es el conjunto de servicios que el servidor expone para que el frontend pida datos. Un endpoint es una URL específica con un método HTTP: GET lee datos, POST envía/crea, PUT actualiza, DELETE borra. Por ejemplo POST /api/usuarios/login es el endpoint de inicio de sesión. El servidor responde JSON y un código de estado (200 ok, 400 datos malos, 403 sin permiso, 404 no existe, 500 error).', s: 's2' },
+        { q: '¿Qué es JSON?', a: 'Es el formato de texto en que viajan los datos entre el frontend y el backend. Es legible por humanos y fácil de convertir a objetos en JavaScript y PHP. Ejemplo: { "mensaje": "Usuario registrado con exito" }.', s: 's2' },
+        { q: '¿Qué es REST?', a: 'Es el estilo de API que sigue el sistema: cada recurso (usuarios, roles, historial) tiene su URL, y las operaciones se hacen con los métodos HTTP (GET/POST/PUT/DELETE). Las rutas están agrupadas por prefijo: /api/usuarios, /api/auth, /api/historial, /api/roles, /api/tipos-documento.', s: 's9' },
+
+        // ===== Arranque e instalación =====
+        { q: '¿Cómo ejecuto el proyecto por primera vez?', a: '1) Enciende MySQL en el panel de XAMPP (puerto 3306). 2) En la carpeta del proyecto ejecuta npm install (solo la primera vez). 3) Copia backend/.env.example como backend/.env y ajusta la contraseña de MySQL si tiene una. 4) Ejecuta npm start (o node backend/server.js). 5) Abre http://localhost:3000 - la primera vez te pedirá crear el administrador del sistema.', s: 's3' },
+        { q: '¿Qué es el archivo .env?', a: 'Es el archivo de configuración con los datos sensibles del sistema, que nunca se sube a internet ni a Git. Contiene: DB_HOST (donde está MySQL, normalmente 127.0.0.1), DB_PORT (3306), DB_USER (root), DB_PASSWORD (la clave de MySQL), DB_NAME (proyecto_3d_mind) y PORT (3000, el puerto del servidor). El archivo backend/.env.example es la plantilla vacía para crearlo.', s: 's3' },
+        { q: '¿Qué es package.json?', a: 'Es la ficha del proyecto: nombre, versión, dependencias (express, mysql2, bcryptjs, cors, dotenv) y scripts. El script "start" ejecuta node backend/server.js, por eso npm start enciende el servidor. package-lock.json guarda las versiones exactas instaladas para que npm install sea igual en cualquier PC. node_modules/ contiene las librerías descargadas (no se edita ni se sube a Git).', s: 's3' },
+        { q: '¿Qué es .gitignore?', a: 'Es la lista de archivos que Git debe ignorar al subir el proyecto: node_modules/ (se regenera con npm install), .env (contiene contraseñas), logs, y archivos basura de Windows e IDE. Su función es proteger los secretos y no llenar el repositorio de archivos innecesarios.', s: 's3' },
+        { q: '¿Qué hace reset_db.js?', a: 'Es un script manual de limpieza: node backend/reset_db.js vacía las tablas de datos (usuarios, historial de accesos y las tablas de módulos futuros), reinicia el contador de IDs y NO toca los catálogos (roles, tipos de documento). Sirve para empezar el sistema de cero y volver a la pantalla de crear administrador.', s: 's12' },
+        { q: '¿Qué pasa si MySQL está apagado?', a: 'El servidor Node enciende igual, pero cualquier consulta a la base de datos falla y los endpoints responden error 500. Enciende MySQL desde el panel de XAMPP y vuelve a intentar. Si el puerto 3000 está ocupado por otra aplicación, el servidor no arrancará y dirá que el puerto está en uso; ciérralo o cambia PORT en el .env.', s: 's3' },
+        { q: '¿Puedo usar el sistema desde otro computador?', a: 'Hoy no directamente: el servidor escucha solo en localhost (la misma PC) y el frontend tiene la dirección http://localhost:3000/api fija en app.js. Para acceso en red habría que cambiar el servidor para que escuche en todas las interfaces y ajustar esa dirección.', s: 's14' },
+        { q: '¿Qué es XAMPP?', a: 'Es un paquete que instala MySQL (y Apache, PHP, etc.) en Windows de forma sencilla. En este proyecto solo se usa MySQL: se enciende desde su panel de control y queda escuchando en el puerto 3306. Ahí vive la base de datos proyecto_3d_mind.', s: 's3' },
+        { q: '¿Qué es npm?', a: 'Es el administrador de paquetes de Node.js. npm install descarga las librerías que el proyecto necesita (las que están en package.json) a la carpeta node_modules. npm start ejecuta el script "start" definido en package.json.', s: 's3' },
+
+        // ===== Base de datos =====
+        { q: '¿Qué tablas tiene la base de datos?', a: '13 tablas en total. Las 4 que el sistema usa hoy: usuario (los usuarios), rol (Administrador y Operario de tienda), tipo_documento (CC, TI, CE) y historial_acceso (registro de entradas y salidas). Las otras 9 (cliente, insumo, pedido, detalle_pedido, estado_pedido, venta, estado_venta, metodo_pago, abono) están creadas para los módulos futuros pero aún no se usan.', s: 's12' },
+        { q: '¿Qué es una llave primaria y una llave foránea?', a: 'La llave primaria (PK) identifica de forma única cada fila de una tabla (por ejemplo id_usuario). La llave foránea (FK) es una columna que apunta a la PK de otra tabla para relacionarlas: usuario.id_rol_FK apunta a rol.id_rol y dice qué rol tiene cada usuario; historial_acceso.id_usuario_FK apunta a qué usuario pertenece cada acceso.', s: 's12' },
+        { q: '¿Cómo se guardan las contraseñas en la base de datos?', a: 'Nunca en texto plano. Al crear o cambiar una contraseña, el código la pasa por bcrypt.hash() que genera una "huella" irreversible (hash). En la BD solo queda algo como $2b$10$... que nadie puede leer ni revertir. Para verificar, bcrypt.compare() compara la clave escrita con la huella sin conocer la original.', s: 's6' },
+        { q: '¿Qué es la eliminación lógica?', a: 'En vez de borrar la fila de la tabla con DELETE, el sistema solo cambia el campo estado a "Eliminado". El registro sigue en la base de datos (y su historial se conserva) pero desaparece de las consultas y el usuario ya no puede iniciar sesión. Así no se pierde la auditoría.', s: 's6' },
+        { q: '¿Qué guarda el historial de accesos?', a: 'Cada vez que alguien inicia sesión se crea un registro en historial_acceso con: la fecha y hora de ingreso, la IP desde donde se conectó y el usuario. Al cerrar sesión se actualiza la fecha_salida. Sirve como auditoría: quién entró, cuándo, desde dónde y hasta cuándo estuvo.', s: 's6' },
+        { q: '¿Qué es AUTO_INCREMENT?', a: 'Es una propiedad de las columnas ID de las tablas que genera el siguiente número automáticamente cada vez que se inserta una fila (1, 2, 3...). reset_db.js lo reinicia a 1 al vaciar las tablas.', s: 's12' },
+
+        // ===== Usuarios y roles =====
+        { q: '¿Cuáles son los roles del sistema y qué puede hacer cada uno?', a: 'Hay 2 roles. Administrador (id_rol=1): acceso total - crea, edita, bloquea, desbloquea y elimina usuarios, ve el directorio completo y el historial. Operario de tienda (id_rol=2): solo puede entrar al panel, ver su propia información y cambiar su contraseña; no ve el módulo de usuarios ni puede gestionar a nadie.', s: 's6' },
+        { q: '¿Cómo creo un usuario nuevo?', a: 'Si eres administrador: entra al módulo Usuarios (te pedirá tu contraseña si pasaron más de 10 minutos desde la última verificación), clic en "Nuevo usuario", llena el formulario (nombre, tipo de documento, cédula, email, username, rol y contraseña) y guarda. El sistema valida en vivo que cédula, email y username no estén duplicados. Si el rol es Operario, se le exigirá cambiar la contraseña en su primer ingreso.', s: 's10' },
+        { q: '¿Qué datos pide el formulario de usuario?', a: 'Nombre completo (mínimo 3 letras), tipo de documento (CC, TI o CE), cédula (solo números), email (formato válido), nombre de usuario para el login, rol (Administrador u Operario de tienda) y contraseña (mínimo 6 caracteres, con campo de confirmación).', s: 's10' },
+        { q: '¿Qué significan los bordes rojos y verdes de los campos?', a: 'Es la validación en vivo mientras escribes: verde con check significa que el campo está bien (formato correcto y no repetido); rojo con mensaje significa que hay un problema (cédula con letras, email mal escrito, username o email que ya existen, contraseñas que no coinciden). El sistema espera 300 milisegundos después de que dejas de escribir antes de validar. No deja guardar mientras haya campos en rojo.', s: 's10' },
+        { q: '¿Cómo edito un usuario?', a: 'Como administrador, busca al usuario en el directorio y clic en Editar (pedirá tu contraseña si la verificación de 10 minutos venció). Se abre el mismo formulario con los datos cargados. La contraseña es opcional: si la dejas vacía conserva la actual; si escribes una nueva, se cambia. Ojo: si te editas a ti mismo siendo admin también puedes cambiar todo.', s: 's10' },
+        { q: '¿Qué puede modificar un operario en su perfil?', a: 'Únicamente su contraseña. En Configuración ve sus datos enmascarados de solo lectura y debe verificar su identidad para revelar los campos de contraseña. Aunque intentara enviar otros datos, el servidor los ignora a propósito: un operario no puede cambiarse el nombre, la cédula ni el rol.', s: 's7' },
+        { q: '¿Cómo bloqueo, desbloqueo o elimino un usuario?', a: 'Como admin, en el directorio cada usuario tiene botones según su estado: "Bloquear" aparece si está Activo, "Desbloquear" si está Bloqueado, y "Eliminar" siempre (menos en tu propio usuario). Todas piden la doble verificación de contraseña y luego una confirmación. Bloquear impide el login; eliminar es lógico (estado=Eliminado) y es permanente desde el sistema.', s: 's10' },
+        { q: '¿Qué significan los estados Activo, Bloqueado y Eliminado?', a: 'Activo: puede iniciar sesión. Bloqueado: no puede entrar hasta que el admin lo desbloquee (llega por bloqueo manual o por 5 intentos fallidos). Eliminado: borrado lógico, desaparece del sistema y no puede entrar; el registro queda en la BD para conservar el historial.', s: 's11' },
+        { q: '¿Qué pasa si un usuario falla la contraseña 5 veces?', a: 'El contador int_fallidos sube en cada intento y el mensaje dice "Le quedan N intentos". Al llegar a 5, el sistema bloquea al usuario automáticamente (estado=Bloqueado) y el login responde que está bloqueado sin revisar más la clave. Solo el administrador puede desbloquearlo, y al hacerlo el contador vuelve a 0.', s: 's7' },
+        { q: '¿Olvidé mi contraseña, cómo la recupero?', a: 'No hay recuperación automática: el enlace "Olvidé mi contraseña" solo indica contactar al administrador. El admin entra a Usuarios, edita al usuario y le asigna una contraseña nueva (el campo es opcional en edición). Las contraseñas no se pueden ver ni recuperar porque se guardan con bcrypt.', s: 's10' },
+        { q: '¿El administrador puede ver las contraseñas de los usuarios?', a: 'No, y es imposible que pueda: las contraseñas se guardan como hash bcrypt irreversible. Ni el admin, ni la base de datos, ni nadie puede leer la clave original; solo se puede comparar con bcrypt.compare al hacer login o verificar la doble clave.', s: 's15' },
+        { q: '¿Puedo eliminar mi propio usuario?', a: 'No. El sistema lo impide dos veces: el botón de eliminar no tiene sentido sobre ti mismo y el backend rechaza la operación si el id coincide con el usuario en sesión ("No puede eliminar su propio usuario en sesión").', s: 's7' },
+        { q: '¿Cómo veo quién ha entrado al sistema?', a: 'En el módulo Usuarios hay una pestaña "Historial de accesos" que muestra tabla por tabla: nombre del usuario, fecha y hora de ingreso, fecha y hora de salida, y la IP desde donde se conectó, ordenado del más reciente al más viejo.', s: 's10' },
+
+        // ===== Sesiones y seguridad =====
+        { q: '¿Qué pasa cuando inicio sesión paso a paso?', a: 'El frontend envía POST /api/usuarios/login con usuario, clave e IP. El servidor busca el usuario por username; verifica que no esté Eliminado ni Bloqueado; compara la clave con bcrypt.compare. Si falla, suma un intento fallido (a los 5 bloquea). Si acierta, reinicia el contador, registra el ingreso en historial_acceso, genera un token de sesión en memoria y responde con los datos del usuario. El navegador guarda la sesión en sessionStorage y muestra el panel.', s: 's13' },
+        { q: '¿Dónde se guarda la sesión?', a: 'En dos lugares. En el navegador: sessionStorage (clave "usuario_sesion") con los datos del usuario, el token, la IP y la fecha - muere al cerrar la pestaña. En el servidor: un Map en memoria (sesionesActivas) que relaciona el token con el id del usuario - se pierde si el servidor se reinicia.', s: 's10' },
+        { q: '¿Qué es la doble verificación de contraseña?', a: 'Antes de acciones sensibles el sistema abre un modal pidiendo tu contraseña y la valida contra el backend (POST /api/auth/verificar-admin). Si es correcta, la verificación queda vigente 10 minutos y no la vuelve a pedir para acciones normales. Siempre la pide (sin importar los 10 min): entrar a Usuarios por primera vez en la sesión, bloquear, desbloquear, y cuando un operario cambia su propia clave.', s: 's10' },
+        { q: '¿Qué pasa si dejo el sistema 5 minutos sin usarlo?', a: 'A los 4.5 minutos aparece un aviso en pantalla. A los 5 minutos se abre el modal de verificación obligatorio (sin botón de cerrar ni clic fuera) que dice que la sesión se bloqueó por inactividad. Verificas tu contraseña y sigues trabajando donde estabas - la sesión no se cierra, solo pide reautenticación. Cualquier movimiento del mouse, tecla o scroll reinicia el contador.', s: 's10' },
+        { q: '¿Por qué al usar el botón atrás del navegador me saca al login?', a: 'Es la protección anti-caché (anti-BFCache). El servidor envía headers no-store para que el navegador no guarde las páginas, y panel.html detecta con el evento pageshow si la página fue restaurada desde la caché o si la sesión ya no existe; en ese caso redirige al login sin dejar la página protegida en el historial.', s: 's10' },
+        { q: '¿Qué pasa si cierro la pestaña del navegador?', a: 'Dos cosas automáticas: sessionStorage se destruye con la pestaña (hay que iniciar sesión de nuevo al volver), y el evento pagehide dispara un sendBeacon que llama a /api/auth/logout para borrar el token del servidor. Si el navegador muere de golpe, el token queda huérfano en memoria hasta reiniciar el servidor, sin consecuencias graves.', s: 's10' },
+        { q: '¿Qué es el setup inicial o needsSetup?', a: 'Es la configuración de primera vez. Cuando la base de datos no tiene usuarios, index.html consulta GET /api/auth/setup-status que responde needsSetup:true y muestra el formulario para crear el primer administrador. Al crearlo, setupAdmin lo registra con rol Administrador y lo deja logueado automáticamente. Una vez existe al menos un usuario, needsSetup es false y el sistema solo muestra el login. Nadie puede volver a usar ese endpoint para crear otro admin.', s: 's7' },
+        { q: '¿Por qué el operario debe cambiar la contraseña en el primer ingreso?', a: 'Es una regla de seguridad: el admin crea al operario con una clave temporal y el sistema marca debe_cambiar_password=1. En su primer login, la respuesta indica requiereCambioPassword:true y login.html abre un modal obligatorio para definir una clave nueva antes de entrar al panel. El administrador no tiene esa bandera porque eligió su clave en el setup.', s: 's10' },
+        { q: '¿El token de sesión sirve para autorizar las peticiones?', a: 'No exactamente. El sessionToken se usa para cerrar sesión y control en memoria, pero los middlewares verifican permisos leyendo el header x-id-usuario y consultando el rol en la base de datos. Es una decisión simple del proyecto, aunque tiene una debilidad conocida: el id viaja en texto plano sin firma criptográfica.', s: 's8' },
+        { q: '¿Qué es verificar-admin y por qué devuelve error 403?', a: 'Es el endpoint POST /api/auth/verificar-admin que valida la contraseña para la doble verificación. Devuelve 403 (prohibido) en vez de 401 a propósito: el frontend trata cualquier 401 como sesión inválida y cerraría el panel. Así, una clave mal escrita en la verificación solo muestra "Contraseña incorrecta" sin tumbar la sesión.', s: 's7' },
+        { q: '¿Qué pasa si tengo el sistema abierto en dos pestañas?', a: 'Cada pestaña tiene su propia sesión en su propio sessionStorage y su propio token en el servidor; ambas funcionan en paralelo. Si cierras sesión en una pestaña, las demás se enteran por el evento storage y también vuelven al login.', s: 's10' },
+        { q: '¿Qué pasa si dos personas editan al mismo tiempo?', a: 'No hay control de concurrencia: el último en guardar gana y sobrescribe los cambios del otro. Es una limitación típica de proyectos formativos con pocos usuarios simultáneos.', s: 's14' },
+        { q: '¿El sistema funciona en red local o solo en mi PC?', a: 'Solo en la misma PC (localhost:3000). El servidor Express escucha en localhost y el frontend tiene la URL http://localhost:3000/api fija en app.js. Para red habría que cambiar ambos.', s: 's14' },
+
+        // ===== Técnico / código =====
+        { q: '¿Qué hace server.js?', a: 'Es el punto de entrada del backend. Al ejecutar node backend/server.js: carga el .env, crea la app Express, configura los middlewares (cors, json, anti-caché y archivos estáticos del frontend), conecta las rutas del API, inicializa datos base (inserta roles y tipos de documento si están vacíos, y verifica que exista la columna debe_cambiar_password) y abre el puerto 3000. Al final exporta una instancia ya creada.', s: 's4' },
+        { q: '¿Qué es un middleware?', a: 'Es una función que corre ANTES del controlador para cada petición. Si no llama next(), la petición se detiene ahí. En el proyecto hay dos: verificarAdmin (solo deja pasar si el usuario es Administrador, rol=1) y verificarAdminOSelf (deja pasar si es admin o si el usuario es él mismo editándose). Protegen las rutas de usuarios.', s: 's8' },
+        { q: '¿Qué es un modelo?', a: 'Es una clase que representa una tabla de la base de datos y contiene sus consultas SQL. Por ejemplo modelos/Usuario.js tiene métodos como crear(), buscarPorUsername(), obtenerTodos(), bloquear(), eliminar(). Todos siguen el mismo patrón: piden una conexión al pool, ejecutan la consulta con parámetros ? y la devuelven.', s: 's6' },
+        { q: '¿Qué es un controlador?', a: 'Es la clase con la lógica de negocio: recibe la petición (req) y la respuesta (res), valida los datos, llama al modelo y devuelve JSON con el código HTTP correspondiente (200, 400, 403, 404, 500). UsuarioControlador.js es el más grande porque maneja login, registro, sesiones, setup y contraseñas.', s: 's7' },
+        { q: '¿Qué hace basedatos.js?', a: 'Crea y exporta una única instancia de conexión a MySQL. Lee las credenciales del .env y crea un pool de conexiones con mysql2: en vez de abrir y cerrar conexión en cada consulta, mantiene varias abiertas y las presta/reutiliza. Los modelos hacen bd.obtenerConexion() para pedir una y conexion.release() para devolverla.', s: 's5' },
+        { q: '¿Qué hace app.js del frontend?', a: 'Es el puente entre las páginas y el API. Define la clase Aplicacion con el método peticion() que hace el fetch agregando el header x-id-usuario, maneja errores y cierra sesión ante un 401. También define las clases UsuarioFrontend, RolFrontend, TipoDocumentoFrontend e HistorialFrontend (un método por endpoint) y la clase Sesion que guarda la sesión en sessionStorage.', s: 's10' },
+        { q: '¿Qué hace cada página HTML?', a: 'index.html: portada que decide si mostrar crear administrador (sistema vacío) o botón de login según setup-status. login.html: formulario de inicio de sesión, cambio obligatorio de clave de primer ingreso y guardado de sesión. panel.html: el panel de trabajo con menú lateral, módulo de usuarios (directorio e historial), configuración de perfil, doble verificación e inactividad.', s: 's11' },
+        { q: '¿Cuáles son los endpoints del API?', a: 'Usuarios: GET /perfil, POST /registrar, GET /obtener, PUT /actualizar/:id, PUT /bloquear/:id, PUT /desbloquear/:id, DELETE /eliminar/:id, POST /login. Auth: GET /setup-status, POST /setup-admin, PUT /cambiar-password, POST /verificar-admin, POST /logout. Historial: POST /salida, GET /obtener. Catálogos: GET /roles/obtener, GET /tipos-documento/obtener. Todos bajo http://localhost:3000/api.', s: 's9' },
+        { q: '¿Qué pasa si reinicio el servidor con usuarios conectados?', a: 'El Map de sesiones en memoria se vacía (los tokens se pierden) pero las sesiones en sessionStorage del navegador siguen, así que los usuarios pueden seguir navegando; la doble verificación sigue funcionando porque consulta la BD. Al arrancar, inicializarDatos() vuelve a verificar roles, tipos de documento y la columna (todo es idempotente, no duplica nada).', s: 's14' },
+        { q: '¿Qué valida el frontend y qué valida el backend?', a: 'El frontend valida para dar feedback inmediato (bordes rojos/verdes, duplicados contra la lista cargada). La seguridad real está en el backend: cada endpoint re-valida campos, permisos de rol y duplicados en la base de datos. Aunque alguien llame la API directamente con otras herramientas, el backend lo rechaza igual.', s: 's14' },
+        { q: '¿Qué es debounce?', a: 'Es una técnica para no ejecutar una función en cada pulsación de tecla: se espera un tiempo fijo (300ms en el formulario, 500ms en la verificación) después de que el usuario deja de escribir, y solo entonces se valida. Así no se consultan duplicados en cada carácter.', s: 's10' },
+        { q: '¿Qué es sessionStorage y en qué se diferencia de localStorage?', a: 'sessionStorage guarda datos solo mientras la pestaña está abierta y se destruye al cerrarla - por eso la sesión vive ahí. localStorage sobrevive al cerrar el navegador; el proyecto solo lo usa para un flag "sesion_logout" que avisa a otras pestañas abiertas que hubo cierre de sesión.', s: 's15' },
+        { q: '¿Qué es bcrypt y para qué sirve?', a: 'Es la librería que cifra contraseñas. bcrypt.hash() convierte la clave en una huella irreversible con un costo de 10 (más rondas = más seguro y lento). bcrypt.compare() verifica si una clave coincide con la huella sin poder leerla. Por eso ni el admin puede ver las contraseñas de nadie.', s: 's15' },
+        { q: '¿Qué son las rutas del backend?', a: 'Son los archivos en backend/rutas/ que conectan cada URL con su middleware y su método del controlador, sin lógica propia. Por ejemplo usuarioRutas.js dice que POST /registrar pasa por verificarAdmin y luego por usuarioControlador.registrar.', s: 's9' },
+        { q: '¿Qué es el header x-id-usuario?', a: 'Es un dato que el frontend agrega a cada petición con el id del usuario en sesión. El backend lo lee para saber quién pide y verificar su rol en la BD (los middlewares lo usan). Es la pieza central de cómo el servidor sabe "quién eres" en cada petición.', s: 's9' },
+        { q: '¿Qué pasa si el servidor no responde?', a: 'El frontend muestra "Error al conectar con el servidor" al hacer login o las operaciones. Revisa que node backend/server.js esté corriendo (debe decir "Servidor corriendo en http://localhost:3000") y que MySQL esté encendido en XAMPP.', s: 's3' },
+        { q: '¿Cómo sé en qué página del manual está cada tema?', a: 'Usa el índice del manual técnico (página 2) o el menú lateral de esta guía: cada sección tiene su número y su enlace te lleva directo. Esta página también tiene buscador del navegador (Ctrl+F) para encontrar cualquier texto.', s: 's14' }
+    ];
+
+    // ---------- Utilidades de búsqueda ----------
+    const STOP = new Set('a,al,algo,ante,antes,como,con,contra,cual,cuales,cuando,de,del,desde,donde,e,el,ella,ellos,en,entre,es,esa,ese,eso,esta,estan,estar,este,esto,y,ha,hasta,la,las,le,les,lo,los,me,mi,mia,mio,mucho,muy,no,otra,otro,para,pero,poco,por,porque,que,quien,se,sea,si,sin,sobre,su,sus,te,tiene,todo,todos,un,una,uno,ya,del,en,con,por,para,que,como,cuando,donde,quien,cual,cuanto,cada,todo,muy,mucho,mas,menos,pues,entonces,asi,tambien,aun,solo,sobre,entre,hasta,desde,contra,sin,sobre,hace,hacen,hago,pasa,pasan,paso,pasos,sistema,sistemas'.split(','));
+
+    function normalizar(t) {
+        return t.toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9ñ\s]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+    function palabras(t) {
+        return normalizar(t).split(' ').filter(w => w.length > 2 && !STOP.has(w));
+    }
+    // Pre-calcular palabras de cada pregunta
+    FAQ.forEach(f => { f._p = palabras(f.q); f._pa = palabras(f.q + ' ' + f.a.slice(0, 200)); });
+
+    function buscar(pregunta) {
+        const p = palabras(pregunta);
+        if (p.length === 0) return [];
+        const resultados = [];
+        FAQ.forEach(f => {
+            const enPregunta = p.filter(w => f._p.includes(w)).length;
+            const enAmbos = p.filter(w => f._pa.includes(w)).length;
+            const score = (enPregunta * 2 + enAmbos) / (p.length * 2);
+            if (score > 0) resultados.push({ f, score });
+        });
+        resultados.sort((a, b) => b.score - a.score);
+        return resultados;
+    }
+
+    // ---------- UI ----------
+    const fab = document.getElementById('ayudaFab');
+    const panel = document.getElementById('ayudaPanel');
+    const btnCerrar = document.getElementById('ayudaCerrar');
+    const form = document.getElementById('ayudaForm');
+    const input = document.getElementById('ayudaInput');
+    const mensajes = document.getElementById('ayudaMensajes');
+    const sugerencias = document.getElementById('ayudaSugerencias');
+
+    let abierto = false;
+    let saludado = false;
+
+    function agregarMsg(texto, quien, extras) {
+        const div = document.createElement('div');
+        div.className = 'msg ' + quien;
+        div.textContent = texto;
+        if (extras && extras.relacionadas && extras.relacionadas.length) {
+            const rel = document.createElement('div');
+            rel.className = 'relacionadas';
+            extras.relacionadas.forEach(r => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = r.q;
+                b.addEventListener('click', function() { enviar(r.q); });
+                rel.appendChild(b);
+            });
+            div.appendChild(rel);
+        }
+        mensajes.appendChild(div);
+        mensajes.scrollTop = mensajes.scrollHeight;
+        return div;
+    }
+
+    function abrir() {
+        abierto = true;
+        panel.classList.add('abierto');
+        if (!saludado) {
+            saludado = true;
+            agregarMsg('Hola, soy el asistente de ayuda de la guía. Puedo responder preguntas sobre cómo funciona el sistema 3D MIND: usuarios, roles, sesiones, seguridad, base de datos y cada parte del código. Escribe tu pregunta o elige una sugerencia.', 'bot');
+        }
+        setTimeout(() => input.focus(), 50);
+    }
+    function cerrar() { abierto = false; panel.classList.remove('abierto'); }
+
+    fab.addEventListener('click', function() { abierto ? cerrar() : abrir(); });
+    btnCerrar.addEventListener('click', cerrar);
+
+    // Sugerencias iniciales
+    const chips = ['¿Cómo inicio sesión?', '¿Qué pasa tras 5 minutos sin usarlo?', '¿Cómo creo un usuario?', '¿Dónde se guarda la sesión?'];
+    chips.forEach(c => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = c;
+        b.addEventListener('click', function() { enviar(c); });
+        sugerencias.appendChild(b);
+    });
+
+    function enviar(texto) {
+        texto = (texto || input.value).trim();
+        if (!texto) return;
+        input.value = '';
+        agregarMsg(texto, 'user');
+
+        const resultados = buscar(texto);
+        const mejor = resultados[0];
+        // Umbral: score mínimo ~0.3 para considerar que hay respuesta
+        if (mejor && mejor.score >= 0.3) {
+            const relacionadas = resultados.slice(1, 3)
+                .filter(r => r.score >= mejor.score * 0.6)
+                .map(r => ({ q: r.f.q }));
+            const div = agregarMsg(mejor.f.a, 'bot', {
+                relacionadas: relacionadas.length ? relacionadas : null
+            });
+            const nota = document.createElement('span');
+            nota.className = 'fuente';
+            nota.textContent = 'Sección ' + mejor.f.s + ' de la guía';
+            div.appendChild(nota);
+            mensajes.scrollTop = mensajes.scrollHeight;
+        } else {
+            // Sugerir las 3 preguntas más cercanas aunque no lleguen al umbral
+            const cerca = resultados.slice(0, 3).map(r => ({ q: r.f.q }));
+            agregarMsg('No encontré una respuesta exacta para eso. Estas preguntas de la guía pueden servirte:', 'bot', { relacionadas: cerca.length ? cerca : null });
+        }
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        enviar();
+    });
+})();
+</script>
+
+</body>
+</html>

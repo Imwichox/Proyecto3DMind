@@ -30,35 +30,20 @@
             <i data-lucide="users"></i>
             <span>Usuarios</span>
         </div>
-        
-        <div class="menu-item" data-vista="historial" title="Historial de Accesos">
-            <i data-lucide="history"></i>
-            <span>Historial</span>
-        </div>
-        
-        <div class="menu-item" data-modulo="clientes" title="Clientes">
-            <i data-lucide="user-circle"></i>
-            <span>Clientes</span>
-        </div>
-        
+
         <div class="menu-item" data-modulo="pedidos" title="Pedidos">
             <i data-lucide="shopping-cart"></i>
             <span>Pedidos</span>
         </div>
-        
+
         <div class="menu-item" data-modulo="ventas" title="Ventas">
             <i data-lucide="dollar-sign"></i>
             <span>Ventas</span>
         </div>
-        
-        <div class="menu-item" data-modulo="insumos" title="Insumos">
-            <i data-lucide="box"></i>
-            <span>Insumos</span>
-        </div>
-        
-        <div class="menu-item" data-modulo="reportes" title="Reportes">
-            <i data-lucide="bar-chart"></i>
-            <span>Reportes</span>
+
+        <div class="menu-item" data-modulo="clientes" title="Clientes">
+            <i data-lucide="user-circle"></i>
+            <span>Clientes</span>
         </div>
         
     </nav>
@@ -110,35 +95,19 @@
                         <p class="estado-modulo">Disponible</p>
                     </div>
 
-                    <div class="card-mini card-usuarios" onclick="document.querySelector('[data-vista=historial]').click()">
-                        <i data-lucide="history" class="icono-modulo"></i>
-                        <h3>Historial</h3>
-                        <p class="estado-modulo">Disponible</p>
-                    </div>
-
-                    <div class="card-mini card-proximamente" title="Disponible próximamente">
-                        <i data-lucide="user-circle" class="icono-modulo"></i>
-                        <h3>Clientes</h3>
-                    </div>
-
-                    <div class="card-mini card-proximamente" title="Disponible próximamente">
+                    <div class="card-mini card-proximamente" title="Disponible próximamente" onclick="mostrarModuloProximamente()">
                         <i data-lucide="shopping-cart" class="icono-modulo"></i>
                         <h3>Pedidos</h3>
                     </div>
 
-                    <div class="card-mini card-proximamente" title="Disponible próximamente">
+                    <div class="card-mini card-proximamente" title="Disponible próximamente" onclick="mostrarModuloProximamente()">
                         <i data-lucide="dollar-sign" class="icono-modulo"></i>
                         <h3>Ventas</h3>
                     </div>
 
-                    <div class="card-mini card-proximamente" title="Disponible próximamente">
-                        <i data-lucide="box" class="icono-modulo"></i>
-                        <h3>Insumos</h3>
-                    </div>
-
-                    <div class="card-mini card-proximamente" title="Disponible próximamente">
-                        <i data-lucide="bar-chart" class="icono-modulo"></i>
-                        <h3>Reportes</h3>
+                    <div class="card-mini card-proximamente" title="Disponible próximamente" onclick="mostrarModuloProximamente()">
+                        <i data-lucide="user-circle" class="icono-modulo"></i>
+                        <h3>Clientes</h3>
                     </div>
                 </div>
 
@@ -162,63 +131,63 @@
             </div>
         </div>
 
-        <!-- Vista Usuarios -->
+        <!-- Vista Usuarios (incluye Historial de Accesos como pestaña interna) -->
         <div id="vista-usuarios" class="vista" style="display: none;">
             <div class="card">
                 <div class="card-header">
                     <h2>Gestión de Usuarios</h2>
                 </div>
-                
-                <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
-                    <button class="btn btn-outline" id="btnConsultarDirectorio" style="white-space: nowrap;">
-                        <i data-lucide="book-open" style="width: 16px; height: 16px; margin-right: 5px;"></i>
-                        Consultar directorio
-                    </button>
-                    <button class="btn btn-primary" id="btnNuevoUsuario" style="white-space: nowrap;">
-                        <i data-lucide="plus" style="width: 16px; height: 16px; margin-right: 5px;"></i>
-                        Nuevo Usuario
-                    </button>
-                    <input type="text" class="buscador" id="buscadorUsuarios" placeholder="Buscar usuario por nombre, cédula, correo o username..." style="margin-bottom: 0; flex: 1; min-width: 220px;">
+
+                <div class="pestanas-usuarios">
+                    <button type="button" class="pestana activa" id="pestanaDirectorio">Directorio de usuarios</button>
+                    <button type="button" class="pestana" id="pestanaHistorial">Historial de accesos</button>
                 </div>
 
-                <div class="tabla-container" id="contenedorResultados" style="display: none;">
-                    <table id="tablaUsuarios">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Cédula</th>
-                                <th>Usuario</th>
-                                <th>Email</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+                <div id="panelDirectorioUsuarios">
+                    <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+                        <button class="btn btn-outline" id="btnConsultarDirectorio" style="white-space: nowrap;">
+                            <i data-lucide="book-open" style="width: 16px; height: 16px; margin-right: 5px;"></i>
+                            Consultar directorio
+                        </button>
+                        <button class="btn btn-primary" id="btnNuevoUsuario" style="white-space: nowrap;">
+                            <i data-lucide="plus" style="width: 16px; height: 16px; margin-right: 5px;"></i>
+                            Nuevo Usuario
+                        </button>
+                        <input type="text" class="buscador" id="buscadorUsuarios" placeholder="Buscar usuario por nombre, cédula, correo o username..." style="margin-bottom: 0; flex: 1; min-width: 220px;">
+                    </div>
 
-        <!-- Vista Historial -->
-        <div id="vista-historial" class="vista" style="display: none;">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Historial de Accesos</h2>
+                    <div class="tabla-container" id="contenedorResultados" style="display: none;">
+                        <table id="tablaUsuarios">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Cédula</th>
+                                    <th>Usuario</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
-                
-                <div class="tabla-container">
-                    <table id="tablaHistorial">
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Fecha Ingreso</th>
-                                <th>Fecha Salida</th>
-                                <th>IP Acceso</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+
+                <div id="vista-historial" style="display: none;">
+                    <div class="tabla-container">
+                        <table id="tablaHistorial">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Fecha Ingreso</th>
+                                    <th>Fecha Salida</th>
+                                    <th>IP Acceso</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -468,7 +437,7 @@
                 document.getElementById('vista-' + vista).style.display = 'block';
 
                 // Verificar permisos para vistas restringidas
-                if ((vista === 'usuarios' || vista === 'historial') && !esAdmin) {
+                if (vista === 'usuarios' && !esAdmin) {
                     Swal.fire({
                         title: 'Acceso restringido',
                         text: 'Solo el Administrador puede gestionar usuarios',
@@ -484,22 +453,43 @@
                 // Cargar datos si es necesario
                 if (vista === 'usuarios') {
                     cargarUsuarios();
-                }
-                if (vista === 'historial') {
-                    cargarHistorial();
+                    cambiarPestanaUsuarios('directorio');
                 }
             } else if (modulo) {
                 // Modulo en actualizacion
-                Swal.fire({
-                    title: 'Módulo en actualización',
-                    icon: 'info',
-                    confirmButtonText: 'Entendido'
-                });
+                mostrarModuloProximamente();
                 document.getElementById('vista-bienvenida').style.display = 'block';
                 document.querySelector('[data-vista="bienvenida"]').classList.add('active');
                 item.classList.remove('active');
             }
         }
+
+        // Aviso de modulo pendiente (tarjetas y menu lateral)
+        function mostrarModuloProximamente() {
+            Swal.fire({
+                title: 'Módulo en actualización',
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
+        }
+
+        // Pestañas internas del módulo Usuarios: Directorio de usuarios / Historial de accesos
+        function cambiarPestanaUsuarios(pestana) {
+            document.getElementById('panelDirectorioUsuarios').style.display = pestana === 'directorio' ? 'block' : 'none';
+            document.getElementById('vista-historial').style.display = pestana === 'historial' ? 'block' : 'none';
+            document.getElementById('pestanaDirectorio').classList.toggle('activa', pestana === 'directorio');
+            document.getElementById('pestanaHistorial').classList.toggle('activa', pestana === 'historial');
+            if (pestana === 'historial') {
+                cargarHistorial();
+            }
+        }
+
+        document.getElementById('pestanaDirectorio').addEventListener('click', function() {
+            cambiarPestanaUsuarios('directorio');
+        });
+        document.getElementById('pestanaHistorial').addEventListener('click', function() {
+            cambiarPestanaUsuarios('historial');
+        });
 
         // Navegacion del menu: entrar a Usuarios exige doble verificacion de administrador
         document.querySelectorAll('.menu-item').forEach(item => {

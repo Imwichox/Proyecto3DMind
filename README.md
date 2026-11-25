@@ -29,10 +29,12 @@ Proyecto3DMind/
 │   ├── panel.html                   # Panel principal (RBAC)
 │   ├── css/estilos.css              # Estilos (paleta Carbon + Plata)
 │   ├── js/app.js                    # Cliente API + clases de sesion
-│   ├── img/                         # Logo e iconos
-│   └── assets/                      # Recursos estaticos
+│   └── img/                         # Logo e iconos
 ├── database/
-│   └── proyecto_3d_mind.sql         # Esquema de la base de datos
+│   ├── proyecto_3d_mind.sql         # Esquema de la base de datos
+│   ├── Image_Modelo_Relacional_3dMind_MysqlWB.png  # Modelo relacional
+│   └── Modelo Relacional MysqlWB.mwb              # Archivo MySQL Workbench
+├── docs/                            # Manuales en PDF y guia interactiva del sistema
 ├── .devin/rules/                    # Reglas permanentes del proyecto
 └── package.json
 ```
