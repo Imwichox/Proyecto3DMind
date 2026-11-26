@@ -50,8 +50,14 @@ class Aplicacion {
 
     // Metodo para obtener IP del cliente
     async obtenerIP() {
+        // Sin internet no tiene sentido consultar un servicio externo: responder de inmediato
+        if (!navigator.onLine) return '127.0.0.1';
         try {
-            const respuesta = await fetch('https://api.ipify.org?format=json');
+            // Timeout de 3 s: si el servicio externo no responde, no bloquear el login
+            const controlador = new AbortController();
+            const temporizador = setTimeout(() => controlador.abort(), 3000);
+            const respuesta = await fetch('https://api.ipify.org?format=json', { signal: controlador.signal });
+            clearTimeout(temporizador);
             const datos = await respuesta.json();
             return datos.ip;
         } catch (error) {
